@@ -1,11 +1,15 @@
 //
-// file:		main_double_free01_test.cpp
-// path:		src/tests/main_double_free01_test.cpp
+// file:		main_stack_invest01_test.cpp
+// path:		src/tests/other/main_stack_invest01_test.cpp
 // created by:	Davit Kalantaryan (davit.kalataryan@desy.de)
-// created on:	2021 Nov 19
+// created on:	2022 Jun 09
 //
 
 #include <stdio.h>
+#include <stack_investigator/investigator.h>
+
+
+static void PrintStack(struct StackInvestStackItem* pItems, int a_frames);
 
 int main()
 {
@@ -13,12 +17,27 @@ int main()
 	fflush(stdout);
 	getchar();
 
-	//
+	struct StackInvestBacktrace* pStack = InitBacktraceDataForCurrentStack(0);
+	if ((!pStack) || (pStack->stackDeepness<1)) {fprintf(stderr, "Unable to get stack\n");return 1;}
+	struct StackInvestStackItem* pItems = new StackInvestStackItem[pStack->stackDeepness];
+	ConvertBacktraceToNames(pStack, pItems);
+	PrintStack(pItems, pStack->stackDeepness);
 	
 	for(int i(0); i<1000;++i){
-		int* pI = new int;
-		printf("%.4d  pI=%p\n",i,static_cast<void*>(pI));
+		//int* pI = new int;
+		//printf("%.4d  pI=%p\n",i,static_cast<void*>(pI));
 	}
 	
 	return 0;
+}
+
+
+static void PrintStack(struct StackInvestStackItem* pFrames, int a_frames)
+{
+	for (int i(0); i < a_frames; ++i) {
+		fprintf(stderr, "\t%p, bin:\"%s\", fnc:\"%s\", src:\"%s\", ln:%d\n",
+			pFrames[i].address, pFrames[i].binFile, pFrames[i].funcName,
+			pFrames[i].sourceFile, pFrames[i].line);
+	}
+	print_trace();
 }

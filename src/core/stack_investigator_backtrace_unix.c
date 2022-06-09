@@ -6,14 +6,54 @@
 //
 
 #ifndef STACK_INVEST_DO_NOT_USE_STACK_INVESTIGATION
-
 #if !defined(_WIN32) || defined(__INTELLISENSE__)
+
+#include <stack_investigator/internal_header.h>
+
+#if !defined(__EMSCRIPTEN__)
+#define CRASH_INVESTEXECINFO_DEFINED
+#endif
+
+#if defined(__linux__) || defined(__linux)
+#define CRASH_INVEST_PRCTL_DEFINED
+#endif
 
 #include <stack_investigator/investigator.h>
 #include "stack_investigator_private_internal.h"
 #include <string.h>
-#include <execinfo.h>
 #include <alloca.h>
+#ifdef CRASH_INVESTEXECINFO_DEFINED
+#include <execinfo.h>
+#endif
+#ifdef CRASH_INVEST_PRCTL_DEFINED
+#include <sys/prctl.h>
+#include <sys/wait.h>
+#endif
+
+#ifdef CRASH_INVEST_PRCTL_DEFINED
+
+STACK_INVEST_EXPORT void print_trace(void)
+{
+    char pid_buf[30];
+    sprintf(pid_buf, "%d", getpid());
+    char name_buf[512];
+    name_buf[readlink("/proc/self/exe", name_buf, 511)]=0;
+    prctl(PR_SET_PTRACER, PR_SET_PTRACER_ANY, 0, 0, 0);
+    int child_pid = fork();
+    if (!child_pid) {
+        dup2(2,1); // redirect output to stderr - edit: unnecessary?
+        execl("/usr/bin/gdb", "gdb", "--batch", "-n", "-ex", "thread", "-ex", "bt", name_buf, pid_buf, NULL);
+        abort(); /* If gdb failed to start */
+    } else {
+        waitpid(child_pid,NULL,0);
+    }
+}
+
+#else
+
+STACK_INVEST_EXPORT void print_trace(void){}
+
+#endif
 
 
 #define STACK_INVEST_SYMBOLS_COUNT_MAX  256
@@ -46,7 +86,7 @@ STACK_INVEST_EXPORT struct StackInvestBacktrace* InitBacktraceDataForCurrentStac
 }
 
 
-CPPUTILS_DLL_PRIVATE void ConvertBacktraceToNames(const struct StackInvestBacktrace* a_data, ::std::vector< StackItem>*  a_pStack)
+CPPUTILS_DLL_PRIVATE void ConvertBacktraceToNamesRaw(const struct StackInvestBacktrace* a_data, ::std::vector< StackItem>*  a_pStack)
 {
     if(a_data){
         char** ppStrings = backtrace_symbols(a_data->ppBuffer,a_data->stackDeepness);
