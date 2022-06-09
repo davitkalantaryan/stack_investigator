@@ -15,20 +15,18 @@
 #include <stdlib.h>
 #endif
 
-
 #ifdef STACK_INVEST_MALLOC
-STACK_INVEST_MALLOC
+extern void* STACK_INVEST_MALLOC(size_t);
 #else
-#define STACK_INVEST_MALLOC		malloc
+#define STACK_INVEST_MALLOC malloc
 #endif
 
 
 #ifdef STACK_INVEST_FREE
-STACK_INVEST_FREE
+extern void STACK_INVEST_FREE(void*);
 #else
-#define STACK_INVEST_FREE		free
+#define STACK_INVEST_FREE free
 #endif
-
 
 
 #endif  // #ifndef STACK_INVEST_SRC_CORE_STACK_INVESTIGATOR_PRIVATE_INTERNAL_H

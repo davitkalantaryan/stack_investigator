@@ -6,10 +6,10 @@
 //
 
 #ifndef STACK_INVEST_DO_NOT_USE_STACK_INVESTIGATION
-
 #if defined(_WIN32) || defined(__INTELLISENSE__)
 
 #include <stack_investigator/investigator.h>
+#include "stack_investigator_private_internal.h"
 #include <malloc.h>
 #include <WinSock2.h>
 #include <WS2tcpip.h>
@@ -17,85 +17,50 @@
 #include <DbgHelp.h>
 
 
-//#include <crash_investigator/core/rawallocfree.hpp>
-//#include <crash_investigator/callback.hpp>
-//#include <string.h>
-
 // see: https://docs.microsoft.com/en-us/previous-versions/windows/desktop/legacy/bb204633(v=vs.85)?redirectedfrom=MSDN
 
+#define STACK_INVEST_SYMBOLS_COUNT_MAX  62 // Windows Server 2003 and Windows XP: The sum of the FramesToSkip and FramesToCapture parameters must be less than 63
 
-namespace crash_investigator {
-
-
-
-struct Backtrace{
-    void** ppBuffer;
-    int    stackDeepness;
-    int    reserved01;
-};
-
-
-CPPUTILS_DLL_PRIVATE bool IsTheSameStack(const Backtrace* a_stack1, const Backtrace* a_stack2)
+CPPUTILS_DLL_PRIVATE struct StackInvestBacktrace* InitBacktraceDataForCurrentStack(int a_goBackInTheStackCalc)
 {
-	return (a_stack1->stackDeepness > 0) && (a_stack1->stackDeepness == a_stack2->stackDeepness) &&
-		(memcmp(a_stack1->ppBuffer, a_stack2->ppBuffer, CPPUTILS_STATIC_CAST(size_t, a_stack1->stackDeepness) * sizeof(void*)) == 0);
-}
+	struct StackInvestBacktrace* pReturn;
+	void* vpBuffer[STACK_INVEST_SYMBOLS_COUNT_MAX];
+	WORD countOfStacks;
+	ULONG ulBtrHash;
 
-
-CPPUTILS_DLL_PRIVATE size_t HashOfTheStack(const Backtrace* a_stack)
-{
-	size_t cunRet(0);
-	size_t unMult(1);
-	for (int i(0); i < a_stack->stackDeepness; ++i, unMult*=1000) {
-		cunRet += ((size_t)a_stack->ppBuffer[i]) * unMult;
-	}
-	return cunRet;
-}
-
-
-CPPUTILS_DLL_PRIVATE void FreeBacktraceData(Backtrace* a_data)
-{
-	if (a_data) {
-		freen(a_data->ppBuffer);
-		freen(a_data);
-	}
-}
-
-
-CPPUTILS_DLL_PRIVATE Backtrace* InitBacktraceDataForCurrentStack(int a_goBackInTheStackCalc)
-{
 	++a_goBackInTheStackCalc;
-	void** ppBuffer = static_cast<void**>(alloca(static_cast<size_t>(64) * sizeof(void*)));
-	WORD countOfStacks = CaptureStackBackTrace(static_cast<DWORD>(a_goBackInTheStackCalc), static_cast<DWORD>(64 - a_goBackInTheStackCalc), ppBuffer, CPPUTILS_NULL);
+	countOfStacks = CaptureStackBackTrace(
+		CPPUTILS_STATIC_CAST(DWORD, a_goBackInTheStackCalc),
+		CPPUTILS_STATIC_CAST(DWORD, STACK_INVEST_SYMBOLS_COUNT_MAX - a_goBackInTheStackCalc),
+		vpBuffer, &ulBtrHash);
+	if (countOfStacks < 1){return CPPUTILS_NULL;}
 
-	if (countOfStacks < 1) { return CPPUTILS_NULL; }
+	pReturn = CPPUTILS_STATIC_CAST(struct StackInvestBacktrace*, STACK_INVEST_MALLOC(sizeof(struct StackInvestBacktrace)));
+	if(!pReturn){return CPPUTILS_NULL;}
 
-    Backtrace* pReturn = static_cast<Backtrace*>(mallocn(sizeof(Backtrace)));
-    if(!pReturn){return CPPUTILS_NULL;}
+	pReturn->stackDeepness = CPPUTILS_STATIC_CAST(int,countOfStacks);
 
-	pReturn->stackDeepness = static_cast<int>(countOfStacks);
+	pReturn->ppBuffer = CPPUTILS_STATIC_CAST(void **, STACK_INVEST_MALLOC(CPPUTILS_STATIC_CAST(size_t,pReturn->stackDeepness) * sizeof(void *)));
+	if (!(pReturn->ppBuffer)){
+		STACK_INVEST_FREE(pReturn);
+		return CPPUTILS_NULL;
+	}
 
-	pReturn->ppBuffer = static_cast<void**>(mallocn(static_cast<size_t>(pReturn->stackDeepness) * sizeof(void*)));
-	if (!(pReturn->ppBuffer)) { FreeBacktraceData(pReturn); return CPPUTILS_NULL; }
-
-	memcpy(pReturn->ppBuffer, ppBuffer, static_cast<size_t>(pReturn->stackDeepness) * sizeof(void*));
-
+	memcpy(pReturn->ppBuffer, vpBuffer, CPPUTILS_STATIC_CAST(size_t,pReturn->stackDeepness) * sizeof(void *));
 	return pReturn;
 }
 
-static void GetSymbolInfo(StackItem* a_pItem);
+static void GetSymbolInfo(struct StackInvestStackItem* a_pItem);
 
-CPPUTILS_DLL_PRIVATE void ConvertBacktraceToNames(const Backtrace* a_data, ::std::vector< StackItem>*  a_pStack)
+CPPUTILS_DLL_PRIVATE void ConvertBacktraceToNames(const struct StackInvestBacktrace* a_data, struct StackInvestStackItem* a_pStack, size_t a_bufferSize)
 {
-	StackItem* pStackItem;
-	const size_t cunSynbols(a_data->stackDeepness);
-	a_pStack->resize(cunSynbols);
+	size_t i = 0;
+	const size_t cunSynbols = CPPUTILS_STATIC_CAST(size_t, a_data->stackDeepness) > a_bufferSize ? a_bufferSize : CPPUTILS_STATIC_CAST(size_t, a_data->stackDeepness);
 
-	for (size_t i(0); i < cunSynbols; ++i) {
-		pStackItem = &(a_pStack->operator [](i));
-		pStackItem->reserved01 = 0;
-		pStackItem->address = a_data->ppBuffer[i];
-		GetSymbolInfo(pStackItem);
+	for (; i < cunSynbols; ++i) {
+		a_pStack[i].reserved01 = 0;
+		a_pStack[i].address = a_data->ppBuffer[i];
+		GetSymbolInfo(&a_pStack[i]);
 	}
 }
 
@@ -180,8 +145,5 @@ static void GetSymbolInfo(StackItem* a_pStackItem)
 
 
 
-}  // namespace crash_investigator {
-
-
-#endif  // #indef _WIN32
-#endif // #ifndef CRASH_INVEST_DO_NOT_USE_AT_ALL
+#endif // #if defined(_WIN32) || defined(__INTELLISENSE__)
+#endif // #ifndef STACK_INVEST_DO_NOT_USE_STACK_INVESTIGATION

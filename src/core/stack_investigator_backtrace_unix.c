@@ -18,9 +18,9 @@
 
 #define STACK_INVEST_SYMBOLS_COUNT_MAX  256
 
-STACK_INVEST_EXPORT struct StInvestBacktrace* InitBacktraceDataForCurrentStack(int a_goBackInTheStackCalc)
+STACK_INVEST_EXPORT struct StackInvestBacktrace* InitBacktraceDataForCurrentStack(int a_goBackInTheStackCalc)
 {
-	struct StInvestBacktrace* pReturn = CPPUTILS_STATIC_CAST(struct StInvestBacktrace*, STACK_INVEST_MALLOC(sizeof(struct StInvestBacktrace)));
+	struct StackInvestBacktrace* pReturn = CPPUTILS_STATIC_CAST(struct StackInvestBacktrace*, STACK_INVEST_MALLOC(sizeof(struct StackInvestBacktrace)));
     if(!pReturn){return CPPUTILS_NULL;}
 
     const int cnMaxSymbolCount = STACK_INVEST_SYMBOLS_COUNT_MAX +a_goBackInTheStackCalc;
@@ -46,7 +46,7 @@ STACK_INVEST_EXPORT struct StInvestBacktrace* InitBacktraceDataForCurrentStack(i
 }
 
 
-CPPUTILS_DLL_PRIVATE void ConvertBacktraceToNames(const struct StInvestBacktrace* a_data, ::std::vector< StackItem>*  a_pStack)
+CPPUTILS_DLL_PRIVATE void ConvertBacktraceToNames(const struct StackInvestBacktrace* a_data, ::std::vector< StackItem>*  a_pStack)
 {
     if(a_data){
         char** ppStrings = backtrace_symbols(a_data->ppBuffer,a_data->stackDeepness);

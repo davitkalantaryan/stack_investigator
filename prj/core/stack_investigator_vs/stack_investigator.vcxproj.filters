@@ -18,7 +18,7 @@
     <ClCompile Include="..\..\..\src\core\stack_investigator_backtrace_common.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\core\stack_investigator_backtrace_unix.cpp">
+    <ClCompile Include="..\..\..\src\core\stack_investigator_backtrace_unix.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\core\stack_investigator_backtrace_windows.cpp">

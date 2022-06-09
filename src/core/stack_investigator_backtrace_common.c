@@ -11,18 +11,17 @@
 #include "stack_investigator_private_internal.h"
 #include <string.h>
 
-
 CPPUTILS_BEGIN_C
 
 
-STACK_INVEST_EXPORT bool IsTheSameStack(const struct StInvestBacktrace* a_stack1, const struct StInvestBacktrace* a_stack2)
+STACK_INVEST_EXPORT bool IsTheSameStack(const struct StackInvestBacktrace* a_stack1, const struct StackInvestBacktrace* a_stack2)
 {
 	return (a_stack1->stackDeepness > 0) && (a_stack1->stackDeepness == a_stack2->stackDeepness) &&
 		(memcmp(a_stack1->ppBuffer, a_stack2->ppBuffer, CPPUTILS_STATIC_CAST(size_t, a_stack1->stackDeepness)*sizeof(void*)) == 0);
 }
 
 
-STACK_INVEST_EXPORT size_t HashOfTheStack(struct StInvestBacktrace* a_stack)
+STACK_INVEST_EXPORT size_t HashOfTheStack(struct StackInvestBacktrace* a_stack)
 {
     if (a_stack->hashIsNotValid) {
         int i = 0;
@@ -37,7 +36,7 @@ STACK_INVEST_EXPORT size_t HashOfTheStack(struct StInvestBacktrace* a_stack)
 }
 
 
-STACK_INVEST_EXPORT void FreeBacktraceData(struct StInvestBacktrace* a_data)
+STACK_INVEST_EXPORT void FreeBacktraceData(struct StackInvestBacktrace* a_data)
 {
     if(a_data){
         STACK_INVEST_FREE(a_data->ppBuffer);
