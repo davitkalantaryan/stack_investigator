@@ -8,9 +8,8 @@
 #ifndef CRASH_INVEST_DO_NOT_USE_AT_ALL
 #if !defined(_WIN32) || defined(__INTELLISENSE__)
 
-#include <crash_investigator/crash_investigator_internal_header.h>
-#include <crash_investigator/core/rawallocfree.hpp>
-#include <crash_investigator/callback.hpp>
+#include <stack_investigator/internal_header.h>
+#include <stack_investigator/callback.hpp>
 #include <string.h>
 #include <execinfo.h>
 #include <alloca.h>

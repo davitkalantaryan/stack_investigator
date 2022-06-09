@@ -28,10 +28,19 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{337EEA01-07EF-4DC5-9E8D-F6EC2D22D01F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "stack_investigator", "..\..\prj\core\stack_investigator_vs\stack_investigator.vcxproj", "{B8F7C1D8-391A-4E3A-97F4-E913D9FF723D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{FF6C8A45-4F74-444E-B6AB-F71CFC34C582} = {FF6C8A45-4F74-444E-B6AB-F71CFC34C582}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "googletest_getter", "..\..\prj\tests\googletest_mult\googletest_getter.vcxproj", "{E6F8B6C2-4CA9-4B3A-9A00-83D011DE88FA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B8F7C1D8-391A-4E3A-97F4-E913D9FF723D} = {B8F7C1D8-391A-4E3A-97F4-E913D9FF723D}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "stack_invest01_test", "..\..\prj\tests\stack_invest01_test_vs\stack_invest01_test.vcxproj", "{0866A449-7779-4D67-82EB-34DC919405E0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B8F7C1D8-391A-4E3A-97F4-E913D9FF723D} = {B8F7C1D8-391A-4E3A-97F4-E913D9FF723D}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

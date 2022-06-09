@@ -1,14 +1,14 @@
 //
-// file:			internal_header.h
-// path:			include/stack_investigator/internal_header.h
-// created on:		2021 Nov 19
+// file:			investigator.h
+// path:			include/stack_investigator/investigator.h
+// created on:		2022 Jun 09
 // created by:		Davit Kalantaryan (davit.kalantaryan@desy.de)
 //
 
-#ifndef STACK_INVEST_INCLUDE_STACK_INVEST_INTERNAL_HEADER_H
-#define STACK_INVEST_INCLUDE_STACK_INVEST_INTERNAL_HEADER_H
+#ifndef STACK_INVEST_INCLUDE_STACK_INVESTIGATOR_H
+#define STACK_INVEST_INCLUDE_STACK_INVESTIGATOR_H
 
-#include <cpputils/internal_header.h>
+#include <stack_investigator/internal_header.h>
 
 
 #if defined(STACK_INVEST_COMPILING_SHARED_LIB)
