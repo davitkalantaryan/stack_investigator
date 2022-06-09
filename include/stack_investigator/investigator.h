@@ -9,20 +9,24 @@
 #define STACK_INVEST_INCLUDE_STACK_INVESTIGATOR_H
 
 #include <stack_investigator/internal_header.h>
+#include <stddef.h>
+#include <stdbool.h>
+
+CPPUTILS_BEGIN_C
+
+struct StInvestBacktrace {
+    void** ppBuffer;
+    size_t hash;
+    int stackDeepness;
+    int hashIsNotValid : 2;
+    int reserved01 : 32;
+};
+
+STACK_INVEST_EXPORT bool IsTheSameStack(const struct StInvestBacktrace* a_stack1, const struct StInvestBacktrace* a_stack2);
+STACK_INVEST_EXPORT size_t HashOfTheStack(struct StInvestBacktrace* a_stack);
+STACK_INVEST_EXPORT void FreeBacktraceData(struct StInvestBacktrace* a_data);
 
 
-#if defined(STACK_INVEST_COMPILING_SHARED_LIB)
-    #define STACK_INVEST_EXPORT CPPUTILS_DLL_PUBLIC
-#elif defined(STACK_INVEST_USING_STATIC_LIB_OR_OBJECTS)
-    #ifdef STACK_INVEST_DEFAULT_VISIBILITY
-        #define STACK_INVEST_EXPORT
-    #else
-        #define STACK_INVEST_EXPORT CPPUTILS_DLL_PRIVATE
-    #endif
-#else
-    #define STACK_INVEST_EXPORT CPPUTILS_IMPORT_FROM_DLL
-#endif
-
-
+CPPUTILS_END_C
 
 #endif  // #ifndef STACK_INVEST_INCLUDE_STACK_INVEST_INTERNAL_HEADER_H

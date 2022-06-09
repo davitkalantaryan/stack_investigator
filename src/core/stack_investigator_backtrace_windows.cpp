@@ -5,11 +5,11 @@
 // created on:	2021 Nov 25
 //
 
-#ifndef CRASH_INVEST_DO_NOT_USE_AT_ALL
+#ifndef STACK_INVEST_DO_NOT_USE_STACK_INVESTIGATION
+
 #if defined(_WIN32) || defined(__INTELLISENSE__)
 
-#include <stack_investigator/internal_header.h>
-#include <stack_investigator/callback.hpp>
+#include <stack_investigator/investigator.h>
 #include <malloc.h>
 #include <WinSock2.h>
 #include <WS2tcpip.h>

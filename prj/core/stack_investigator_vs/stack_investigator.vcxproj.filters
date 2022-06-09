@@ -15,11 +15,20 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\src\tests\other\main_stack_invest01_test.cpp">
+    <ClCompile Include="..\..\..\src\core\stack_investigator_backtrace_common.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\stack_investigator_backtrace_unix.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\stack_investigator_backtrace_windows.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\src\core\stack_investigator_private_internal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\include\stack_investigator\internal_header.h">
       <Filter>Header Files</Filter>
     </ClInclude>

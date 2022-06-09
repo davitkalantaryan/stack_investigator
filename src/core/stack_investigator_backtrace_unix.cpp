@@ -5,82 +5,48 @@
 // created on:	2021 Nov 25
 //
 
-#ifndef CRASH_INVEST_DO_NOT_USE_AT_ALL
+#ifndef STACK_INVEST_DO_NOT_USE_STACK_INVESTIGATION
+
 #if !defined(_WIN32) || defined(__INTELLISENSE__)
 
-#include <stack_investigator/internal_header.h>
-#include <stack_investigator/callback.hpp>
+#include <stack_investigator/investigator.h>
+#include "stack_investigator_private_internal.h"
 #include <string.h>
 #include <execinfo.h>
 #include <alloca.h>
 
 
-namespace crash_investigator {
+#define STACK_INVEST_SYMBOLS_COUNT_MAX  256
 
-#define CRASH_INVEST_SYMBOLS_COUNT_MAX  256
-
-struct Backtrace{
-    void** ppBuffer;
-    int    stackDeepness;
-    int    reserved01;
-};
-
-CPPUTILS_DLL_PRIVATE bool IsTheSameStack(const Backtrace* a_stack1, const Backtrace* a_stack2)
+STACK_INVEST_EXPORT struct StInvestBacktrace* InitBacktraceDataForCurrentStack(int a_goBackInTheStackCalc)
 {
-	return (a_stack1->stackDeepness > 0) && (a_stack1->stackDeepness == a_stack2->stackDeepness) &&
-		(memcmp(a_stack1->ppBuffer, a_stack2->ppBuffer, CPPUTILS_STATIC_CAST(size_t, a_stack1->stackDeepness)*sizeof(void*)) == 0);
-}
-
-
-CPPUTILS_DLL_PRIVATE size_t HashOfTheStack(const Backtrace* a_stack)
-{
-	size_t cunRet(0);
-	size_t unMult(1);
-	for (int i(0); i < a_stack->stackDeepness; ++i, unMult *= 1000) {
-		cunRet += ((size_t)a_stack->ppBuffer[i]) * unMult;
-	}
-	return cunRet;
-}
-
-
-CPPUTILS_DLL_PRIVATE void FreeBacktraceData(Backtrace* a_data)
-{
-    if(a_data){
-        freen(a_data->ppBuffer);
-        freen(a_data);
-    }
-}
-
-
-CPPUTILS_DLL_PRIVATE Backtrace* InitBacktraceDataForCurrentStack(int a_goBackInTheStackCalc)
-{
-    Backtrace* pReturn = static_cast<Backtrace*>(mallocn(sizeof(Backtrace)));
+	struct StInvestBacktrace* pReturn = CPPUTILS_STATIC_CAST(struct StInvestBacktrace*, STACK_INVEST_MALLOC(sizeof(struct StInvestBacktrace)));
     if(!pReturn){return CPPUTILS_NULL;}
 
-    const int cnMaxSymbolCount = CRASH_INVEST_SYMBOLS_COUNT_MAX+a_goBackInTheStackCalc;
+    const int cnMaxSymbolCount = STACK_INVEST_SYMBOLS_COUNT_MAX +a_goBackInTheStackCalc;
 
     pReturn->reserved01 = 0;
 
-    void** ppBuffer = static_cast<void**>(alloca(static_cast<size_t>(cnMaxSymbolCount)*sizeof(void*)));
+    void** ppBuffer = CPPUTILS_STATIC_CAST(void**,alloca(CPPUTILS_STATIC_CAST(size_t,cnMaxSymbolCount)*sizeof(void*)));
     int nInitialDeepness = backtrace(ppBuffer,cnMaxSymbolCount);
     if(nInitialDeepness>a_goBackInTheStackCalc){
         pReturn->stackDeepness = nInitialDeepness-a_goBackInTheStackCalc;
-        pReturn->ppBuffer = static_cast<void**>(mallocn(static_cast<size_t>(pReturn->stackDeepness)*sizeof(void*)));
+        pReturn->ppBuffer = CPPUTILS_STATIC_CAST(void**, STACK_INVEST_MALLOC(CPPUTILS_STATIC_CAST(size_t,pReturn->stackDeepness)*sizeof(void*)));
         if(!(pReturn->ppBuffer)){FreeBacktraceData(pReturn);return CPPUTILS_NULL;}
-		memcpy(pReturn->ppBuffer,&(ppBuffer[a_goBackInTheStackCalc]),static_cast<size_t>(pReturn->stackDeepness)*sizeof(void*));
+		memcpy(pReturn->ppBuffer,&(ppBuffer[a_goBackInTheStackCalc]), CPPUTILS_STATIC_CAST(size_t,pReturn->stackDeepness)*sizeof(void*));
     }
     else{
         pReturn->stackDeepness = nInitialDeepness;
-        pReturn->ppBuffer = static_cast<void**>(mallocn(static_cast<size_t>(pReturn->stackDeepness)*sizeof(void*)));
+        pReturn->ppBuffer = CPPUTILS_STATIC_CAST(void**, STACK_INVEST_MALLOC(CPPUTILS_STATIC_CAST(size_t,pReturn->stackDeepness)*sizeof(void*)));
         if(!(pReturn->ppBuffer)){FreeBacktraceData(pReturn);return CPPUTILS_NULL;}
-		memcpy(pReturn->ppBuffer,ppBuffer,static_cast<size_t>(pReturn->stackDeepness)*sizeof(void*));
+		memcpy(pReturn->ppBuffer,ppBuffer, CPPUTILS_STATIC_CAST(size_t,pReturn->stackDeepness)*sizeof(void*));
     }
 
     return pReturn;
 }
 
 
-CPPUTILS_DLL_PRIVATE void ConvertBacktraceToNames(const Backtrace* a_data, ::std::vector< StackItem>*  a_pStack)
+CPPUTILS_DLL_PRIVATE void ConvertBacktraceToNames(const struct StInvestBacktrace* a_data, ::std::vector< StackItem>*  a_pStack)
 {
     if(a_data){
         char** ppStrings = backtrace_symbols(a_data->ppBuffer,a_data->stackDeepness);
