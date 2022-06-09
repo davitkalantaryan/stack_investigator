@@ -287,7 +287,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\src\core\stack_investigator_backtrace_common.c" />
     <ClCompile Include="..\..\..\src\core\stack_investigator_backtrace_unix.c" />
-    <ClCompile Include="..\..\..\src\core\stack_investigator_backtrace_windows.cpp" />
+    <ClCompile Include="..\..\..\src\core\stack_investigator_backtrace_windows.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\include\stack_investigator\internal_header.h" />

@@ -11,6 +11,9 @@
 #include <stack_investigator/investigator.h>
 #include "stack_investigator_private_internal.h"
 #include <malloc.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 #include <Windows.h>
@@ -65,18 +68,28 @@ CPPUTILS_DLL_PRIVATE void ConvertBacktraceToNames(const struct StackInvestBacktr
 }
 
 static HANDLE s_currentProcess = CPPUTILS_NULL;
-class SymIniter {
-public:
-	SymIniter() {
-		s_currentProcess = GetCurrentProcess();
-		if (!SymInitialize(s_currentProcess, CPPUTILS_NULL, TRUE)){
-			// SymInitialize failed
-			DWORD error = GetLastError();
-			fprintf(stderr,"SymInitialize returned error : %d\n", static_cast<int>(error));
-			return;
-		}
+
+static void StackInvestCleanupRoutine(void)
+{
+	if (s_currentProcess) {
+		SymCleanup(s_currentProcess);
+		s_currentProcess = CPPUTILS_NULL;
 	}
-}static s_SymIniter;
+}
+
+CPPUTILS_ALLOC_FREE_INITIALIZER(StackInvestInitializationRoutine)
+{
+	s_currentProcess = GetCurrentProcess();
+	if (!SymInitialize(s_currentProcess, CPPUTILS_NULL, TRUE)) {
+		// SymInitialize failed
+		s_currentProcess = CPPUTILS_NULL;
+		DWORD error = GetLastError();
+		fprintf(stderr, "SymInitialize returned error : %d\n", CPPUTILS_STATIC_CAST(int,error));
+		return;
+	}
+	atexit(StackInvestCleanupRoutine);
+}
+
 
 #ifdef _WIN64
 typedef DWORD64  DWORD_ci;
@@ -85,11 +98,12 @@ typedef DWORD  DWORD_ci;
 #endif
 
 
-static void GetSymbolInfo(StackItem* a_pStackItem)
+static void GetSymbolInfo(struct StackInvestStackItem* a_pStackItem)
 {
 	// https://docs.microsoft.com/en-us/windows/win32/debug/retrieving-symbol-information-by-address
-	const DWORD_ci  dwAddress = static_cast<DWORD_ci>(reinterpret_cast<size_t>(a_pStackItem->address));
+	const DWORD_ci  dwAddress = CPPUTILS_STATIC_CAST(DWORD_ci, CPPUTILS_REINTERPRET_CAST(size_t,a_pStackItem->address));
 
+	
 	{
 		DWORD64  dwDisplacement = 0;
 		char buffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR)];
@@ -100,6 +114,9 @@ static void GetSymbolInfo(StackItem* a_pStackItem)
 
 		if (SymFromAddr(s_currentProcess, dwAddress, &dwDisplacement, pSymbol)) {
 			a_pStackItem->funcName = pSymbol->Name;
+		}
+		else {
+			a_pStackItem->funcName = CPPUTILS_NULL;
 		}
 	}
 
@@ -115,17 +132,20 @@ static void GetSymbolInfo(StackItem* a_pStackItem)
 
 		if (SymGetLineFromAddr64(s_currentProcess, dwAddress, &dwDisplacement, &line)){
 			if (line.FileName) {
-				a_pStackItem->sourceFileName = line.FileName;
+				a_pStackItem->sourceFile = _strdup(line.FileName);
 			}
-			a_pStackItem->line = static_cast<int>(line.LineNumber);
+			else {
+				a_pStackItem->sourceFile = CPPUTILS_NULL;
+			}
+			a_pStackItem->line = CPPUTILS_STATIC_CAST(int,line.LineNumber);
 		}
 		else{
 			// SymGetLineFromAddr64 failed
 			a_pStackItem->line = -1;
-			//DWORD error = GetLastError();
-			//fprintf(stderr,"SymGetLineFromAddr64 returned error : %d\n", static_cast<int>(error));
+			a_pStackItem->sourceFile = CPPUTILS_NULL;
 		}
 	}
+
 
 
 	{
@@ -133,10 +153,10 @@ static void GetSymbolInfo(StackItem* a_pStackItem)
 		aModuleInfo.SizeOfStruct = sizeof(IMAGEHLP_MODULE);
 
 		if (SymGetModuleInfo(s_currentProcess, dwAddress, &aModuleInfo)) {
-			//printf("ModuleName=\"%s\"\n", aModuleInfo.ModuleName);
-			//printf("ImageName=\"%s\"\n", aModuleInfo.ImageName);
-			//printf("LoadedImageName=\"%s\"\n", aModuleInfo.LoadedImageName);
-			a_pStackItem->dllName = aModuleInfo.ImageName;
+			a_pStackItem->binFile = _strdup(aModuleInfo.ImageName);
+		}
+		else {
+			a_pStackItem->binFile = CPPUTILS_NULL;
 		}
 	}
 
