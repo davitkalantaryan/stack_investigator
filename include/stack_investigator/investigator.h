@@ -31,9 +31,14 @@ struct StackInvestStackItem {
     int             reserved01;
 };
 
+
+STACK_INVEST_EXPORT struct StackInvestBacktrace* InitBacktraceDataForCurrentStack(int a_goBackInTheStackCalc);
+STACK_INVEST_EXPORT struct StackInvestBacktrace* CloneBackTrace(const struct StackInvestBacktrace* a_btr);
 STACK_INVEST_EXPORT bool IsTheSameStack(const struct StackInvestBacktrace* a_stack1, const struct StackInvestBacktrace* a_stack2);
 STACK_INVEST_EXPORT size_t HashOfTheStack(struct StackInvestBacktrace* a_stack);
+STACK_INVEST_EXPORT void ConvertBacktraceToNames(const struct StackInvestBacktrace* a_data, struct StackInvestStackItem* a_pStack, size_t a_bufferSize);
 STACK_INVEST_EXPORT void FreeBacktraceData(struct StackInvestBacktrace* a_data);
+STACK_INVEST_EXPORT void FreeStackItemData(struct StackInvestStackItem* a_pStack);
 
 
 CPPUTILS_END_C

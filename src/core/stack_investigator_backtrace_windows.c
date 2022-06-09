@@ -28,7 +28,7 @@
 
 #define STACK_INVEST_SYMBOLS_COUNT_MAX  62 // Windows Server 2003 and Windows XP: The sum of the FramesToSkip and FramesToCapture parameters must be less than 63
 
-CPPUTILS_DLL_PRIVATE struct StackInvestBacktrace* InitBacktraceDataForCurrentStack(int a_goBackInTheStackCalc)
+STACK_INVEST_EXPORT struct StackInvestBacktrace* InitBacktraceDataForCurrentStack(int a_goBackInTheStackCalc)
 {
 	struct StackInvestBacktrace* pReturn;
 	void* vpBuffer[STACK_INVEST_SYMBOLS_COUNT_MAX];
@@ -42,24 +42,27 @@ CPPUTILS_DLL_PRIVATE struct StackInvestBacktrace* InitBacktraceDataForCurrentSta
 		vpBuffer, &ulBtrHash);
 	if (countOfStacks < 1){return CPPUTILS_NULL;}
 
-	pReturn = CPPUTILS_STATIC_CAST(struct StackInvestBacktrace*, STACK_INVEST_MALLOC(sizeof(struct StackInvestBacktrace)));
+	pReturn = CPPUTILS_STATIC_CAST(struct StackInvestBacktrace*, STACK_INVEST_ANY_ALLOC(sizeof(struct StackInvestBacktrace)));
 	if(!pReturn){return CPPUTILS_NULL;}
 
 	pReturn->stackDeepness = CPPUTILS_STATIC_CAST(int,countOfStacks);
 
-	pReturn->ppBuffer = CPPUTILS_STATIC_CAST(void **, STACK_INVEST_MALLOC(CPPUTILS_STATIC_CAST(size_t,pReturn->stackDeepness) * sizeof(void *)));
+	pReturn->ppBuffer = CPPUTILS_STATIC_CAST(void **, STACK_INVEST_ANY_ALLOC(CPPUTILS_STATIC_CAST(size_t,pReturn->stackDeepness) * sizeof(void *)));
 	if (!(pReturn->ppBuffer)){
-		STACK_INVEST_FREE(pReturn);
+		STACK_INVEST_ANY_FREE(pReturn);
 		return CPPUTILS_NULL;
 	}
 
 	memcpy(pReturn->ppBuffer, vpBuffer, CPPUTILS_STATIC_CAST(size_t,pReturn->stackDeepness) * sizeof(void *));
+	pReturn->hash = CPPUTILS_STATIC_CAST(size_t,ulBtrHash);
+	pReturn->hashIsNotValid = 0;
+	pReturn->reserved01 = 0;
 	return pReturn;
 }
 
 static void GetSymbolInfo(struct StackInvestStackItem* a_pItem);
 
-CPPUTILS_DLL_PRIVATE void ConvertBacktraceToNames(const struct StackInvestBacktrace* a_data, struct StackInvestStackItem* a_pStack, size_t a_bufferSize)
+STACK_INVEST_EXPORT void ConvertBacktraceToNames(const struct StackInvestBacktrace* a_data, struct StackInvestStackItem* a_pStack, size_t a_bufferSize)
 {
 	size_t i = 0;
 	const size_t cunSynbols = CPPUTILS_STATIC_CAST(size_t, a_data->stackDeepness) > a_bufferSize ? a_bufferSize : CPPUTILS_STATIC_CAST(size_t, a_data->stackDeepness);
@@ -70,6 +73,7 @@ CPPUTILS_DLL_PRIVATE void ConvertBacktraceToNames(const struct StackInvestBacktr
 		GetSymbolInfo(&a_pStack[i]);
 	}
 }
+
 
 static HANDLE s_currentProcess = CPPUTILS_NULL;
 

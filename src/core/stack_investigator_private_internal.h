@@ -11,21 +11,33 @@
 #include <stack_investigator/internal_header.h>
 #include <stddef.h>
 
-#if !defined(STACK_INVEST_MALLOC) || !defined(STACK_INVEST_FREE)
+#ifdef STACK_INVEST_ANY_ALLOC
+extern void* STACK_INVEST_ANY_ALLOC(size_t);
+#define STACK_INVEST_ANY_ALLOC_D
+#else
+#define STACK_INVEST_ANY_ALLOC malloc
+#endif
+
+
+#ifdef STACK_INVEST_ANY_FREE
+extern void STACK_INVEST_ANY_FREE(void*);
+#define STACK_INVEST_ANY_FREE_D
+#else
+#define STACK_INVEST_ANY_FREE free
+#endif
+
+#ifdef STACK_INVEST_C_LIB_FREE_NO_CLBK
+extern void STACK_INVEST_C_LIB_FREE_NO_CLBK(void*);
+#define STACK_INVEST_C_LIB_FREE_NO_CLBK_D
+#else
+#define STACK_INVEST_C_LIB_FREE_NO_CLBK free
+#endif
+
+
+
+
+#if !defined(STACK_INVEST_ANY_ALLOC_D) || !defined(STACK_INVEST_FREE_D)  || !defined(STACK_INVEST_C_LIB_FREE_NO_CLBK_D)
 #include <stdlib.h>
-#endif
-
-#ifdef STACK_INVEST_MALLOC
-extern void* STACK_INVEST_MALLOC(size_t);
-#else
-#define STACK_INVEST_MALLOC malloc
-#endif
-
-
-#ifdef STACK_INVEST_FREE
-extern void STACK_INVEST_FREE(void*);
-#else
-#define STACK_INVEST_FREE free
 #endif
 
 
