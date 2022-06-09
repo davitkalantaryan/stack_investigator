@@ -19,6 +19,10 @@
 #include <Windows.h>
 #include <DbgHelp.h>
 
+#ifdef _MSC_VER
+#pragma comment (lib, "Dbghelp.lib")
+#endif
+
 
 // see: https://docs.microsoft.com/en-us/previous-versions/windows/desktop/legacy/bb204633(v=vs.85)?redirectedfrom=MSDN
 
