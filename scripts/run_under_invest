@@ -1,0 +1,23 @@
+#!/bin/bash
+
+#
+# file:			run_under_invest
+# path:			scripts/run_under_invest
+# created by:	Davit Kalantaryan (davit.kalataryan@desy.de)
+# created on:	2021 Nov 29
+#
+# the aim:		The role of this script is to start software 
+#				under memory handling investigation
+#
+
+CRASH_INVEST_VERSION_ENV=0020
+
+if [ $# -gt 0 ]; then
+	PROG_NAME="$1"
+	shift
+	export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/local/lib:/afs/ifh.de/group/pitz/doocs/lib  # please redefine this if needed in your runable
+	# LD_PRELOAD=libcrash_investigator_new_malloc_${CRASH_INVEST_VERSION_ENV}.so ${PROG_NAME} "$@"
+	LD_PRELOAD=/local/lib/libcrash_investigator_new_malloc_${CRASH_INVEST_VERSION_ENV}.so ${PROG_NAME} "$@"
+else
+	echo "Program name is not specified"
+fi
