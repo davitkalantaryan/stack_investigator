@@ -1,0 +1,128 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="files">
+      <UniqueIdentifier>{8eb74553-5734-4b77-a2e2-621d8fe10aaa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\tests">
+      <UniqueIdentifier>{139ee4ad-4dfe-44b9-aacb-6652b0957ba5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\tests\googletest">
+      <UniqueIdentifier>{e40682fe-cd27-40fd-87fa-c1fb675fb8a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\incude">
+      <UniqueIdentifier>{3033059e-d64c-4cf6-8d6a-78278f262a93}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\incude\cpputils">
+      <UniqueIdentifier>{6311382d-1408-4205-b426-4c5280e51f67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\core">
+      <UniqueIdentifier>{429adb94-1d6f-4f99-911e-a8c82285230a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\incude\cpputils\hash">
+      <UniqueIdentifier>{9c5c2332-22b0-43bb-8505-473f578c9174}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="windows.Makefile">
+      <Filter>files</Filter>
+    </None>
+    <None Include="packages.config.locked">
+      <Filter>files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\include\cpputils\internal_header.h">
+      <Filter>Header Files\incude</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\cpputils\bigint.hpp">
+      <Filter>Header Files\incude\cpputils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\cpputils\bigint.impl.hpp">
+      <Filter>Header Files\incude\cpputils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\cpputils\enums.hpp">
+      <Filter>Header Files\incude\cpputils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\cpputils\functional.hpp">
+      <Filter>Header Files\incude\cpputils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\cpputils\functional_old.hpp">
+      <Filter>Header Files\incude\cpputils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\cpputils\functional_old.impl.hpp">
+      <Filter>Header Files\incude\cpputils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\cpputils\hashtbl.def.hpp">
+      <Filter>Header Files\incude\cpputils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\cpputils\hashtbl.hpp">
+      <Filter>Header Files\incude\cpputils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\cpputils\hashtbl.impl.hpp">
+      <Filter>Header Files\incude\cpputils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\cpputils\inscopecleaner.hpp">
+      <Filter>Header Files\incude\cpputils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\cpputils\macroses.h">
+      <Filter>Header Files\incude\cpputils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\cpputils\sharedptr.hpp">
+      <Filter>Header Files\incude\cpputils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\cpputils\sharedptr.impl.hpp">
+      <Filter>Header Files\incude\cpputils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\cpputils\endian.h">
+      <Filter>Header Files\incude\cpputils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\cpputils\hash\hash.hpp">
+      <Filter>Header Files\incude\cpputils\hash</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\cpputils\hash\hash.impl.hpp">
+      <Filter>Header Files\incude\cpputils\hash</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\cpputils\hash\hashbase.hpp">
+      <Filter>Header Files\incude\cpputils\hash</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\cpputils\hash\hashbase.impl.hpp">
+      <Filter>Header Files\incude\cpputils\hash</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\cpputils\hash\items.hpp">
+      <Filter>Header Files\incude\cpputils\hash</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\cpputils\hash\items.impl.hpp">
+      <Filter>Header Files\incude\cpputils\hash</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\cpputils\hash\lhash.hpp">
+      <Filter>Header Files\incude\cpputils\hash</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\cpputils\hash\lhash.impl.hpp">
+      <Filter>Header Files\incude\cpputils\hash</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\cpputils\hash\vhash.hpp">
+      <Filter>Header Files\incude\cpputils\hash</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\cpputils\hash\vhash.impl.hpp">
+      <Filter>Header Files\incude\cpputils\hash</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\src\tests\googletest\0000_initial_no_test.cpp">
+      <Filter>Source Files\tests\googletest</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

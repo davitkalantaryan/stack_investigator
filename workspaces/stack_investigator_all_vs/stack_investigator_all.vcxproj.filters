@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="repo_files">
+      <UniqueIdentifier>{578dec36-1c3f-4d1c-8889-9bd3e492c584}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="repo_files\scripts">
+      <UniqueIdentifier>{c1da41d1-7b6e-458d-9104-7ef972c19c37}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="repo_files\scripts\.raw">
+      <UniqueIdentifier>{dad8de8a-0eee-4fe0-a962-dc74eb96d8a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="repo_files\scripts\.cicd">
+      <UniqueIdentifier>{3f509346-d242-479a-91fc-6f291958e7ae}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\.gitattributes">
+      <Filter>repo_files</Filter>
+    </None>
+    <None Include="..\..\.gitignore">
+      <Filter>repo_files</Filter>
+    </None>
+    <None Include="..\..\ENVIRONMENT">
+      <Filter>repo_files</Filter>
+    </None>
+    <None Include="..\..\LICENSE">
+      <Filter>repo_files</Filter>
+    </None>
+    <None Include="..\..\Makefile">
+      <Filter>repo_files</Filter>
+    </None>
+    <None Include="..\..\README.md">
+      <Filter>repo_files</Filter>
+    </None>
+    <None Include="..\..\scripts\doocs_under_invest">
+      <Filter>repo_files\scripts</Filter>
+    </None>
+    <None Include="..\..\scripts\run_under_invest">
+      <Filter>repo_files\scripts</Filter>
+    </None>
+    <None Include="..\..\scripts\upload_to_supported_hosts.sh">
+      <Filter>repo_files\scripts</Filter>
+    </None>
+    <None Include="..\..\scripts\upload_to_supported_hosts_focal.sh">
+      <Filter>repo_files\scripts</Filter>
+    </None>
+    <None Include="..\..\scripts\upload_to_supported_hosts_nitrogen1.sh">
+      <Filter>repo_files\scripts</Filter>
+    </None>
+    <None Include="..\..\scripts\upload_to_supported_hosts_nitrogen2.sh">
+      <Filter>repo_files\scripts</Filter>
+    </None>
+    <None Include="..\..\scripts\.raw\_upload_to_supported_hosts.sh">
+      <Filter>repo_files\scripts\.raw</Filter>
+    </None>
+    <None Include="..\..\scripts\.cicd\unix_prebuild.sh">
+      <Filter>repo_files\scripts\.cicd</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\utils\stack_investigator_overall.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
