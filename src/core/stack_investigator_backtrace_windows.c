@@ -87,8 +87,9 @@ static void StackInvestCleanupRoutine(void)
 	}
 }
 
-CPPUTILS_ALLOC_FREE_INITIALIZER(StackInvestInitializationRoutine)
+CPPUTILS_C_CODE_INITIALIZER(StackInvestInitializationRoutine)
 {
+	if (s_currentProcess) { return; }
 	s_currentProcess = GetCurrentProcess();
 	if (!SymInitialize(s_currentProcess, CPPUTILS_NULL, TRUE)) {
 		// SymInitialize failed
