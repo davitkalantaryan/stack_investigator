@@ -16,8 +16,13 @@ DEFINES += STACK_INVEST_USING_STATIC_LIB_OR_OBJECTS
 
 
 win32{
+	QMAKE_CXXFLAGS += /Wall /WX
 	QMAKE_CFLAGS += /Wall /WX
 } else {
+	QMAKE_CXXFLAGS += -std=c++11
+	QMAKE_CXXFLAGS += -Wall
+	QMAKE_CXXFLAGS += -Werror
+	QMAKE_CXXFLAGS += -Wno-attributes
 	QMAKE_CFLAGS += -Wall
 	QMAKE_CFLAGS += -Werror
 	QMAKE_CFLAGS += -Wno-attributes
@@ -33,7 +38,7 @@ QT -= gui
 CONFIG -= qt
 
 
-SOURCES += "$${PWD}/../../../src/tests/other/main_stack_invest01_test.c"
+SOURCES += "$${PWD}/../../../src/tests/other/main_stack_invest02_test.cpp"
 
 INCLUDEPATH += $${PWD}/../../../include
 INCLUDEPATH += $${PWD}/../../../contrib/cpputils/include
@@ -44,6 +49,7 @@ SOURCES += "$${PWD}/../../../src/core/stack_investigator_backtrace_windows.c"
 
 HEADERS += \
 	"$${PWD}/../../../src/core/stack_investigator_private_internal.h"	\
+	$$files($${PWD}/../../../include/*.hpp,true)				\
 	$$files($${PWD}/../../../include/*.h,true)
 
 OTHER_FILES +=	\

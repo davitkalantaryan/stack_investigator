@@ -14,6 +14,9 @@ CONFIG += ordered
 repositoryRoot = $${PWD}/../..
 
 SUBDIRS		+=	"$${repositoryRoot}/prj/tests/stack_invest01_test_qt/stack_invest01_test.pro"
+SUBDIRS		+=	"$${repositoryRoot}/prj/tests/stack_invest02_test_qt/stack_invest02_test.pro"
+SUBDIRS		+=	"$${repositoryRoot}/prj/tests/stack_invest03_test_qt/stack_invest03_test.pro"
+SUBDIRS		+=	"$${repositoryRoot}/prj/tests/stack_invest04_test_qt/stack_invest04_test.pro"
 
 includeCppUtils {
 	SUBDIRS		+=	"$${repositoryRoot}/contrib/cpputils/workspaces/cpputils_qt/cpputils.pro"
