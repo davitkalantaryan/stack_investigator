@@ -17,10 +17,10 @@ int main()
 	fflush(stdout);
 	getchar();
 
-	struct StackInvestBacktrace* pStack = InitBacktraceDataForCurrentStack(0);
+	struct StackInvestBacktrace* pStack = StackInvestInitBacktraceDataForCurrentStack(0);
 	if ((!pStack) || (pStack->stackDeepness<1)) {fprintf(stderr, "Unable to get stack\n");return 1;}
 	struct StackInvestStackItem* pItems = new StackInvestStackItem[pStack->stackDeepness];
-	ConvertBacktraceToNames(pStack, pItems);
+	StackInvestConvertBacktraceToNames(pStack, pItems);
 	PrintStack(pItems, pStack->stackDeepness);
 	
 	for(int i(0); i<1000;++i){
@@ -39,5 +39,5 @@ static void PrintStack(struct StackInvestStackItem* pFrames, int a_frames)
 			pFrames[i].address, pFrames[i].binFile, pFrames[i].funcName,
 			pFrames[i].sourceFile, pFrames[i].line);
 	}
-	print_trace();
+	StackInvestPrintTrace();
 }

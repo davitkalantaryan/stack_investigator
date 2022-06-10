@@ -13,13 +13,14 @@ CONFIG += ordered
 
 repositoryRoot = $${PWD}/../..
 
+SUBDIRS		+=	"$${repositoryRoot}/prj/tests/stack_invest01_test_qt/stack_invest01_test.pro"
 
 includeCppUtils {
 	SUBDIRS		+=	"$${repositoryRoot}/contrib/cpputils/workspaces/cpputils_qt/cpputils.pro"
 }
 
 testsFromWorkspace {
-	SUBDIRS		+=	"$${repositoryRoot}/prj/tests/double_free01_test_qt/double_free01_test.pro"
+	SUBDIRS		+=	"$${repositoryRoot}/prj/tests/googletest_mult/googletest_getter.pro"
 }
 
 
