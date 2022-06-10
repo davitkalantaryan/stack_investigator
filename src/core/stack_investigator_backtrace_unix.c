@@ -5,6 +5,11 @@
 // created on:	2021 Nov 25
 //
 
+
+#ifdef _MSC_VER
+#pragma warning(disable:4206)
+#endif
+
 #ifndef STACK_INVEST_DO_NOT_USE_STACK_INVESTIGATION
 #if !defined(_WIN32) || defined(__INTELLISENSE__)
 

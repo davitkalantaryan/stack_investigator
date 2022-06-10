@@ -19,7 +19,7 @@ int main()
 
 	struct StackInvestBacktrace* pStack = StackInvestInitBacktraceDataForCurrentStack(0);
 	if ((!pStack) || (pStack->stackDeepness<1)) {fprintf(stderr, "Unable to get stack\n");return 1;}
-	struct StackInvestStackItem* pItems = new StackInvestStackItem[pStack->stackDeepness];
+	struct StackInvestStackItem* pItems = new StackInvestStackItem[size_t(pStack->stackDeepness)];
 	StackInvestConvertBacktraceToNames(pStack, pItems);
 	PrintStack(pItems, pStack->stackDeepness);
 	

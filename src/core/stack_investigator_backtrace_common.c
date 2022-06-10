@@ -30,7 +30,9 @@ STACK_INVEST_EXPORT struct StackInvestBacktrace* StackInvestCloneBackTrace(const
 
 		pReturn->stackDeepness = a_btr->stackDeepness;
 		pReturn->hash = a_btr->hash;
+#ifndef _WIN32
 		pReturn->hashIsNotValid = a_btr->hashIsNotValid;
+#endif
 		pReturn->reserved01 = a_btr->reserved01;
 
 		memcpy(pReturn->ppBuffer, a_btr->ppBuffer, CPPUTILS_STATIC_CAST(size_t, a_btr->stackDeepness) * sizeof(void*));

@@ -19,7 +19,7 @@ struct StackInvestBacktrace {
     size_t  hash;
     int     stackDeepness;
     int     hashIsNotValid : 2;
-    int     reserved01 : 32;
+    int     reserved01 : 30;
 };
 
 struct StackInvestStackItem {

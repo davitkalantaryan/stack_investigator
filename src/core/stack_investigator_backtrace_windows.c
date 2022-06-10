@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <cpputils/disable_compiler_warnings.h>
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 #include <Windows.h>
@@ -57,7 +58,6 @@ STACK_INVEST_EXPORT struct StackInvestBacktrace* StackInvestInitBacktraceDataFor
 
 	memcpy(pReturn->ppBuffer, vpBuffer, CPPUTILS_STATIC_CAST(size_t,pReturn->stackDeepness) * sizeof(void *));
 	pReturn->hash = CPPUTILS_STATIC_CAST(size_t,ulBtrHash);
-	pReturn->hashIsNotValid = 0;
 	pReturn->reserved01 = 0;
 	return pReturn;
 }
@@ -72,7 +72,7 @@ STACK_INVEST_EXPORT void StackInvestConvertBacktraceToNamesRaw(const struct Stac
 	for (; i < cunSynbols; ++i) {
 		a_pStack[i].reserved01 = 0;
 		a_pStack[i].address = a_data->ppBuffer[i];
-		GetSymbolInfo(&a_pStack[i]);
+		StackInvestGetSymbolInfo(&a_pStack[i]);
 	}
 }
 
