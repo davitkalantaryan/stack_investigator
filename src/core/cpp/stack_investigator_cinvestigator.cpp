@@ -108,7 +108,7 @@ int Backtrace::numberOfFrames()const
 /*/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
 
 
-StackItems::~StackItems()
+StackItems::~StackItems()CPPUTILS_NOEXCEPT
 {
     for(size_t i(0); i<m_st_itms_data_ptr->m_itemsCount;++i){
         StackInvestFreeStackItemData(&m_st_itms_data_ptr->m_pStackItems[i]);

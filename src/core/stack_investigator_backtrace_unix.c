@@ -31,6 +31,17 @@
 #include <unistd.h>
 #ifdef CRASH_INVESTEXECINFO_DEFINED
 #include <execinfo.h>
+#else
+static int backtrace(void **buffer, int size){
+    (void)buffer;
+    (void)size;
+    return 0;
+}
+static char **backtrace_symbols(void *const *buffer, int size){
+    (void)buffer;
+    (void)size;
+    return NULL;
+}
 #endif
 #ifdef CRASH_INVEST_PRCTL_DEFINED
 #include <sys/prctl.h>
