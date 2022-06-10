@@ -32,7 +32,7 @@
 
 #ifdef CRASH_INVEST_PRCTL_DEFINED
 
-STACK_INVEST_EXPORT void print_trace(void)
+STACK_INVEST_EXPORT void StackInvestPrintTrace(void)
 {
     char pid_buf[30];
     sprintf(pid_buf, "%d", getpid());
@@ -51,14 +51,14 @@ STACK_INVEST_EXPORT void print_trace(void)
 
 #else
 
-STACK_INVEST_EXPORT void print_trace(void){}
+STACK_INVEST_EXPORT void StackInvestPrintTrace(void){}
 
 #endif
 
 
 #define STACK_INVEST_SYMBOLS_COUNT_MAX  256
 
-STACK_INVEST_EXPORT struct StackInvestBacktrace* InitBacktraceDataForCurrentStack(int a_goBackInTheStackCalc)
+STACK_INVEST_EXPORT struct StackInvestBacktrace* StackInvestInitBacktraceDataForCurrentStack(int a_goBackInTheStackCalc)
 {
 	struct StackInvestBacktrace* pReturn = CPPUTILS_STATIC_CAST(struct StackInvestBacktrace*, STACK_INVEST_MALLOC(sizeof(struct StackInvestBacktrace)));
     if(!pReturn){return CPPUTILS_NULL;}

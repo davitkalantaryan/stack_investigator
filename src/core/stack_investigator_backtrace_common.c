@@ -14,7 +14,7 @@
 CPPUTILS_BEGIN_C
 
 
-STACK_INVEST_EXPORT struct StackInvestBacktrace* CloneBackTrace(const struct StackInvestBacktrace* a_btr)
+STACK_INVEST_EXPORT struct StackInvestBacktrace* StackInvestCloneBackTrace(const struct StackInvestBacktrace* a_btr)
 {
 	if (a_btr) {
 		struct StackInvestBacktrace* pReturn = CPPUTILS_STATIC_CAST(struct StackInvestBacktrace*, STACK_INVEST_ANY_ALLOC(sizeof(struct StackInvestBacktrace)));
@@ -40,14 +40,14 @@ STACK_INVEST_EXPORT struct StackInvestBacktrace* CloneBackTrace(const struct Sta
 }
 
 
-STACK_INVEST_EXPORT bool IsTheSameStack(const struct StackInvestBacktrace* a_stack1, const struct StackInvestBacktrace* a_stack2)
+STACK_INVEST_EXPORT bool StackInvestIsTheSameStack(const struct StackInvestBacktrace* a_stack1, const struct StackInvestBacktrace* a_stack2)
 {
 	return (a_stack1->stackDeepness > 0) && (a_stack1->stackDeepness == a_stack2->stackDeepness) &&
 		(memcmp(a_stack1->ppBuffer, a_stack2->ppBuffer, CPPUTILS_STATIC_CAST(size_t, a_stack1->stackDeepness)*sizeof(void*)) == 0);
 }
 
 
-STACK_INVEST_EXPORT size_t HashOfTheStack(struct StackInvestBacktrace* a_stack)
+STACK_INVEST_EXPORT size_t StackInvestHashOfTheStack(struct StackInvestBacktrace* a_stack)
 {
 #ifndef _WIN32
     if (a_stack->hashIsNotValid) {
@@ -64,7 +64,7 @@ STACK_INVEST_EXPORT size_t HashOfTheStack(struct StackInvestBacktrace* a_stack)
 }
 
 
-STACK_INVEST_EXPORT void FreeBacktraceData(struct StackInvestBacktrace* a_data)
+STACK_INVEST_EXPORT void StackInvestFreeBacktraceData(struct StackInvestBacktrace* a_data)
 {
     if(a_data){
         STACK_INVEST_ANY_FREE(a_data->ppBuffer);
@@ -73,7 +73,7 @@ STACK_INVEST_EXPORT void FreeBacktraceData(struct StackInvestBacktrace* a_data)
 }
 
 
-STACK_INVEST_EXPORT void FreeStackItemData(struct StackInvestStackItem* a_pStack)
+STACK_INVEST_EXPORT void StackInvestFreeStackItemData(struct StackInvestStackItem* a_pStack)
 {
 	STACK_INVEST_C_LIB_FREE_NO_CLBK(CPPUTILS_CONST_CAST(char*,a_pStack->binFile));
 	STACK_INVEST_C_LIB_FREE_NO_CLBK(CPPUTILS_CONST_CAST(char*,a_pStack->funcName));

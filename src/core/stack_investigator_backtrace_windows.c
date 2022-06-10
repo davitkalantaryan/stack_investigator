@@ -24,13 +24,13 @@
 #endif
 
 
-STACK_INVEST_EXPORT void print_trace(void) {}
+STACK_INVEST_EXPORT void StackInvestPrintTrace(void) {}
 
 // see: https://docs.microsoft.com/en-us/previous-versions/windows/desktop/legacy/bb204633(v=vs.85)?redirectedfrom=MSDN
 
 #define STACK_INVEST_SYMBOLS_COUNT_MAX  62 // Windows Server 2003 and Windows XP: The sum of the FramesToSkip and FramesToCapture parameters must be less than 63
 
-STACK_INVEST_EXPORT struct StackInvestBacktrace* InitBacktraceDataForCurrentStack(int a_goBackInTheStackCalc)
+STACK_INVEST_EXPORT struct StackInvestBacktrace* StackInvestInitBacktraceDataForCurrentStack(int a_goBackInTheStackCalc)
 {
 	struct StackInvestBacktrace* pReturn;
 	void* vpBuffer[STACK_INVEST_SYMBOLS_COUNT_MAX];
@@ -62,9 +62,9 @@ STACK_INVEST_EXPORT struct StackInvestBacktrace* InitBacktraceDataForCurrentStac
 	return pReturn;
 }
 
-static void GetSymbolInfo(struct StackInvestStackItem* a_pItem);
+static void StackInvestGetSymbolInfo(struct StackInvestStackItem* a_pItem);
 
-STACK_INVEST_EXPORT void ConvertBacktraceToNamesRaw(const struct StackInvestBacktrace* a_data, struct StackInvestStackItem* a_pStack, size_t a_bufferSize)
+STACK_INVEST_EXPORT void StackInvestConvertBacktraceToNamesRaw(const struct StackInvestBacktrace* a_data, struct StackInvestStackItem* a_pStack, size_t a_bufferSize)
 {
 	size_t i = 0;
 	const size_t cunSynbols = CPPUTILS_STATIC_CAST(size_t, a_data->stackDeepness) > a_bufferSize ? a_bufferSize : CPPUTILS_STATIC_CAST(size_t, a_data->stackDeepness);
@@ -109,7 +109,7 @@ typedef DWORD  DWORD_ci;
 #endif
 
 
-static void GetSymbolInfo(struct StackInvestStackItem* a_pStackItem)
+static void StackInvestGetSymbolInfo(struct StackInvestStackItem* a_pStackItem)
 {
 	// https://docs.microsoft.com/en-us/windows/win32/debug/retrieving-symbol-information-by-address
 	const DWORD_ci  dwAddress = CPPUTILS_STATIC_CAST(DWORD_ci, CPPUTILS_REINTERPRET_CAST(size_t,a_pStackItem->address));
