@@ -25,11 +25,13 @@ public:
     typedef const void*const CVoidPtr;
 
 public:
-    ~Backtrace();
+    ~Backtrace()CPPUTILS_NOEXCEPT;
     Backtrace(int goBackInTheStack=1);
     Backtrace(const Backtrace& cM);
-    Backtrace(Backtrace&& cM);
+    Backtrace(Backtrace&& cM)CPPUTILS_NOEXCEPT;
 
+    Backtrace& operator=(const Backtrace& cM);
+    Backtrace& operator=(Backtrace&& cM)CPPUTILS_NOEXCEPT;
     const CVoidPtr* frames()const;
     size_t hash()const;
     int    numberOfFrames()const;
@@ -54,9 +56,10 @@ public:
     typedef int (*TypePrint2)(FILE*,const char*,...);
 
 public:
-    ~StackItems();
+    ~StackItems()CPPUTILS_NOEXCEPT;
     StackItems(const Backtrace& st = Backtrace(1));
     StackItems(const StackItems&)=delete;
+    StackItems& operator=(const StackItems&)=delete;
 
     const CStackItemPtr& stackItems()const;
     size_t numberOfFrames()const;

@@ -27,6 +27,9 @@
     <ClCompile Include="..\..\..\src\tests\other\main_stack_invest03_test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\core\cpp\stack_investigator_cinvestigator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\include\stack_investigator\internal_header.h">
