@@ -24,7 +24,10 @@
     <ClCompile Include="..\..\..\src\core\stack_investigator_backtrace_windows.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\tests\other\main_stack_invest01_test.c">
+    <ClCompile Include="..\..\..\src\tests\other\main_stack_invest05_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\cpp\stack_investigator_cinvestigator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

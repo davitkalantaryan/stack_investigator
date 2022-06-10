@@ -7,6 +7,9 @@
 
 #include <stack_investigator/cinvestigator.hpp>
 #include <stack_investigator/investigator.h>
+#ifdef _MSC_VER
+#pragma warning(disable:4464)  // relative include path contains '..'
+#endif
 #include "../stack_investigator_private_internal.h"
 #include <stdlib.h>
 
@@ -19,7 +22,7 @@ class CPPUTILS_DLL_PRIVATE Backtrace_p
 public:
     Backtrace_p(int a_goBackInTheStack);
     Backtrace_p(const Backtrace_p& cM);
-    StackInvestBacktrace*const m_pStack;
+    StackInvestBacktrace* m_pStack;
 };
 
 
@@ -33,7 +36,7 @@ public:
 
 /*/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
 
-Backtrace::~Backtrace()
+Backtrace::~Backtrace() CPPUTILS_NOEXCEPT
 {
     if(m_bt_data_ptr){
         StackInvestFreeBacktraceData(m_bt_data_ptr->m_pStack);
@@ -56,11 +59,31 @@ Backtrace::Backtrace(const Backtrace& a_cM)
 }
 
 
-Backtrace::Backtrace(Backtrace&& a_mM)
+Backtrace::Backtrace(Backtrace&& a_mM)CPPUTILS_NOEXCEPT
     :
       m_bt_data_ptr(a_mM.m_bt_data_ptr)
 {
     a_mM.m_bt_data_ptr = nullptr;
+}
+
+
+Backtrace& Backtrace::operator=(const Backtrace& a_cM)
+{
+    StackInvestFreeBacktraceData(m_bt_data_ptr->m_pStack);
+    m_bt_data_ptr->m_pStack = StackInvestCloneBackTrace(a_cM.m_bt_data_ptr->m_pStack);
+    if (!m_bt_data_ptr->m_pStack) {
+        throw "Low memory"; // todo: replace this with proper exception
+    }
+    return *this;
+}
+
+
+Backtrace& Backtrace::operator=(Backtrace&& a_mM)CPPUTILS_NOEXCEPT
+{
+    Backtrace_p* this_data_ptr = m_bt_data_ptr;
+    m_bt_data_ptr = a_mM.m_bt_data_ptr;
+    a_mM.m_bt_data_ptr = this_data_ptr;
+    return *this;
 }
 
 

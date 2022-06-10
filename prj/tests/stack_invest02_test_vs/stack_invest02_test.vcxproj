@@ -37,7 +37,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{0866a449-7779-4d67-82eb-34dc919405e0}</ProjectGuid>
+    <ProjectGuid>{AA342F3A-3619-400A-ABCE-0F7245FB5AC5}</ProjectGuid>
     <RootNamespace>stackinvest01test</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -295,7 +295,7 @@
     <ClCompile Include="..\..\..\src\core\stack_investigator_backtrace_common.c" />
     <ClCompile Include="..\..\..\src\core\stack_investigator_backtrace_unix.c" />
     <ClCompile Include="..\..\..\src\core\stack_investigator_backtrace_windows.c" />
-    <ClCompile Include="..\..\..\src\tests\other\main_stack_invest01_test.c" />
+    <ClCompile Include="..\..\..\src\tests\other\main_stack_invest02_test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\include\stack_investigator\internal_header.h" />
