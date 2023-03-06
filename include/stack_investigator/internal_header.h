@@ -8,7 +8,7 @@
 #ifndef STACK_INVEST_INCLUDE_STACK_INVEST_INTERNAL_HEADER_H
 #define STACK_INVEST_INCLUDE_STACK_INVEST_INTERNAL_HEADER_H
 
-#include <cpputils/internal_header.h>
+#include <cinternal/internal_header.h>
 
 
 #if defined(STACK_INVEST_COMPILING_SHARED_LIB)
