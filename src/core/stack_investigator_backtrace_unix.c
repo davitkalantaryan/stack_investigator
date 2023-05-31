@@ -89,16 +89,15 @@ STACK_INVEST_EXPORT struct StackInvestBacktrace* StackInvestInitBacktraceDataFor
     int nInitialDeepness = backtrace(ppBuffer,cnMaxSymbolCount);
     if(nInitialDeepness>a_goBackInTheStackCalc){
         pReturn->stackDeepness = nInitialDeepness-a_goBackInTheStackCalc;
-        pReturn->ppBuffer = CPPUTILS_STATIC_CAST(void**, STACK_INVEST_ANY_ALLOC(CPPUTILS_STATIC_CAST(size_t,pReturn->stackDeepness)*sizeof(void*)));
-        if(!(pReturn->ppBuffer)){STACK_INVEST_ANY_FREE(pReturn);return CPPUTILS_NULL;}
-		memcpy(pReturn->ppBuffer,&(ppBuffer[a_goBackInTheStackCalc]), CPPUTILS_STATIC_CAST(size_t,pReturn->stackDeepness)*sizeof(void*));
+
     }
     else{
         pReturn->stackDeepness = nInitialDeepness;
-        pReturn->ppBuffer = CPPUTILS_STATIC_CAST(void**, STACK_INVEST_ANY_ALLOC(CPPUTILS_STATIC_CAST(size_t,pReturn->stackDeepness)*sizeof(void*)));
-        if(!(pReturn->ppBuffer)){STACK_INVEST_ANY_FREE(pReturn);return CPPUTILS_NULL;}
-		memcpy(pReturn->ppBuffer,ppBuffer, CPPUTILS_STATIC_CAST(size_t,pReturn->stackDeepness)*sizeof(void*));
     }
+    pReturn->ppBuffer = CPPUTILS_STATIC_CAST(void**, STACK_INVEST_ANY_ALLOC(CPPUTILS_STATIC_CAST(size_t,pReturn->stackDeepness)*sizeof(void*)));
+    if(!(pReturn->ppBuffer)){STACK_INVEST_ANY_FREE(pReturn);return CPPUTILS_NULL;}
+    pReturn->hashIsNotValid = 1;
+    memcpy(pReturn->ppBuffer,&(ppBuffer[a_goBackInTheStackCalc]), CPPUTILS_STATIC_CAST(size_t,pReturn->stackDeepness)*sizeof(void*));
 
     return pReturn;
 }
