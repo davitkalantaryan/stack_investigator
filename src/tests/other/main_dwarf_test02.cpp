@@ -9,7 +9,9 @@ void print_dwarf_info(int fd) {
     Dwarf_Debug dbg;
     Dwarf_Error err;
     Dwarf_Line *linebuf;
-    Dwarf_Signed linecount;
+    Dwarf_Signed linecount, funcsCount;
+    Dwarf_Signed i;
+    Dwarf_Func* pFuncs;
 
     if (dwarf_init(fd, DW_DLC_READ, 0, 0, &dbg, &err) != DW_DLV_OK) {
         fprintf(stderr, "Failed to initialize libdwarf.\n");
@@ -22,6 +24,7 @@ void print_dwarf_info(int fd) {
     //Dwarf_Signed linecount;
     
     Dwarf_Die cu_die = 0;
+    Dwarf_Off di_off, cu_off;
 
     while (1) {
         int res = dwarf_next_cu_header(dbg, &cu_header_length, &version_stamp,
@@ -31,6 +34,16 @@ void print_dwarf_info(int fd) {
             exit(EXIT_FAILURE);
         else if (res == DW_DLV_NO_ENTRY)
             break;
+        
+        if( dwarf_get_funcs(dbg,&pFuncs,&funcsCount,&err) == DW_DLV_OK ){
+            for(i=0;i<funcsCount;++i){
+                char* pFuncName = nullptr;
+                if(dwarf_func_name_offsets(pFuncs[i],&pFuncName,&di_off,&cu_off,&err) == DW_DLV_OK){
+                    printf("+++++ funcName: \"%s\"\n",pFuncName);
+                    dwarf_dealloc(dbg, pFuncName, DW_DLA_STRING);
+                }  //  if(dwarf_func_name_offsets(pFuncs[i],&pFuncName,&di_off,&cu_off,&err) == DW_DLV_OK){
+            }  //  for(i=0;i<funcsCount;++i){
+        }  //  if( dwarf_get_funcs(dbg,&pFuncs,&funcsCount,&err) == DW_DLV_OK ){
         
         Dwarf_Die no_die = 0;
             if (dwarf_siblingof(dbg, no_die, &cu_die, &err) == DW_DLV_OK) {
@@ -43,7 +56,7 @@ void print_dwarf_info(int fd) {
                     continue;
                 }
         
-                for (Dwarf_Signed i = 0; i < linecount; ++i) {
+                for (i=0; i < linecount; ++i) {
                     Dwarf_Addr lineaddr;
                     if (dwarf_lineaddr(linebuf[i], &lineaddr, &err) != DW_DLV_OK) {
                         continue;
