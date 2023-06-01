@@ -18,7 +18,8 @@ SUBDIRS		+=	"$${repositoryRoot}/prj/tests/stack_invest02_test_qt/stack_invest02_
 SUBDIRS		+=	"$${repositoryRoot}/prj/tests/stack_invest03_test_qt/stack_invest03_test.pro"
 SUBDIRS		+=	"$${repositoryRoot}/prj/tests/stack_invest04_test_qt/stack_invest04_test.pro"
 SUBDIRS		+=	"$${repositoryRoot}/prj/tests/stack_invest05_test_qt/stack_invest05_test.pro"
-SUBDIRS		+=	"$${repositoryRoot}/prj/tests/dwarf_test_qt/dwarf_test.pro"
+SUBDIRS		+=	"$${repositoryRoot}/prj/tests/dwarf_test01_qt/dwarf_test01.pro"
+SUBDIRS		+=	"$${repositoryRoot}/prj/tests/dwarf_test02_qt/dwarf_test02.pro"
 
 includeCppUtils {
 	SUBDIRS		+=	"$${repositoryRoot}/contrib/cinternal/workspaces/cinternal_all_qt/cinternal_all.pro"

@@ -5,24 +5,20 @@
 # This file can be used to produce Makefile
 # 
 
-#QMAKE_CXXFLAGS += "-include types.h"
-#DEFINES += u_int=unsigned
 
 #DEFINES += DEBUG_APP
 
-#DEFINES += CRASH_INVEST_DO_NOT_USE_MAL_FREE
-DEFINES += STACK_INVEST_USING_STATIC_LIB_OR_OBJECTS
-
-
 include("$${PWD}/../../common/common_qt/sys_common.pri")
 include("$${PWD}/../../common/common_qt/flags_common.pri")
-DESTDIR = $${artifactRoot}/$${SYSTEM_PATH}/test
+DESTDIR = $${artifactRoot}/$${SYSTEM_PATH}/$$CONFIGURATION/test
 
 
 QT -= core
 QT -= gui
 CONFIG -= qt
 
+#DEFINES += CRASH_INVEST_DO_NOT_USE_MAL_FREE
+DEFINES += STACK_INVEST_USING_STATIC_LIB_OR_OBJECTS
 
 SOURCES += "$${PWD}/../../../src/tests/other/main_stack_invest02_test.cpp"
 
