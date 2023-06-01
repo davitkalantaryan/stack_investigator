@@ -45,5 +45,4 @@ static void PrintStack(struct StackInvestStackItem* pFrames, int a_frames)
 			pFrames[i].address, pFrames[i].binFile, pFrames[i].funcName,
 			pFrames[i].sourceFile, pFrames[i].line);
 	}
-	StackInvestPrintTrace();
 }

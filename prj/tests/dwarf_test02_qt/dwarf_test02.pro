@@ -29,6 +29,7 @@ SOURCES += "$${PWD}/../../../src/tests/other/main_dwarf_test02.cpp"
 SOURCES += "$${PWD}/../../../src/core/stack_investigator_backtrace_common.c"
 SOURCES += "$${PWD}/../../../src/core/stack_investigator_backtrace_unix.c"
 SOURCES += "$${PWD}/../../../src/core/stack_investigator_backtrace_windows.c"
+SOURCES += "$${cinternalRepoRoot}/src/core/cinternal_core_hash_dllhash.c"
 
 SOURCES += "$${PWD}/../../../src/core/cpp/stack_investigator_cinvestigator.cpp"
 

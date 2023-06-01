@@ -28,6 +28,7 @@ INCLUDEPATH += $${PWD}/../../../contrib/cpputils/include
 SOURCES += "$${PWD}/../../../src/core/stack_investigator_backtrace_common.c"
 SOURCES += "$${PWD}/../../../src/core/stack_investigator_backtrace_unix.c"
 SOURCES += "$${PWD}/../../../src/core/stack_investigator_backtrace_windows.c"
+SOURCES += "$${cinternalRepoRoot}/src/core/cinternal_core_hash_dllhash.c"
 
 HEADERS += \
 	"$${PWD}/../../../src/core/stack_investigator_private_internal.h"	\

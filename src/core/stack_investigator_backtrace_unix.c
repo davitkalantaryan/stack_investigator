@@ -10,7 +10,6 @@
 #pragma warning(disable:4206)
 #endif
 
-#ifndef STACK_INVEST_DO_NOT_USE_STACK_INVESTIGATION
 #if !defined(_WIN32) || defined(__INTELLISENSE__)
 
 #include <stack_investigator/export_symbols.h>
@@ -19,62 +18,31 @@
 #define CRASH_INVESTEXECINFO_DEFINED
 #endif
 
+#if !defined(STACK_INVEST_NOT_USE_LIBDWARF) && !defined(STACK_INVEST_LIBDWARF_USED)
 #if defined(__linux__) || defined(__linux)
-#define CRASH_INVEST_PRCTL_DEFINED
+#define STACK_INVEST_LIBDWARF_USED
 #endif
+#endif  //  #if !defined(STACK_INVEST_NOT_USE_LIBDWARF) && !defined(STACK_INVEST_LIBDWARF_USED)
 
 #include <stack_investigator/investigator.h>
 #include "stack_investigator_private_internal.h"
 #include <string.h>
 #include <alloca.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #ifdef CRASH_INVESTEXECINFO_DEFINED
 #include <execinfo.h>
-#else
-static int backtrace(void **buffer, int size){
-    (void)buffer;
-    (void)size;
-    return 0;
-}
-static char **backtrace_symbols(void *const *buffer, int size){
-    (void)buffer;
-    (void)size;
-    return NULL;
-}
 #endif
-#ifdef CRASH_INVEST_PRCTL_DEFINED
-#include <sys/prctl.h>
-#include <sys/wait.h>
+#ifdef STACK_INVEST_LIBDWARF_USED
+#include <cinternal/hash/dllhash.h>
+#include <pthread.h>
+#include <libdwarf/libdwarf.h>
+#include <libdwarf/dwarf.h>
 #endif
-
-#ifdef CRASH_INVEST_PRCTL_DEFINED
-
-STACK_INVEST_EXPORT void StackInvestPrintTrace(void)
-{
-    char pid_buf[30];
-    snprintf(pid_buf,29, "%d", getpid());
-    char name_buf[512];
-    name_buf[readlink("/proc/self/exe", name_buf, 511)]=0;
-    prctl(PR_SET_PTRACER, PR_SET_PTRACER_ANY, 0, 0, 0);
-    int child_pid = fork();
-    if (!child_pid) {
-        dup2(2,1); // redirect output to stderr - edit: unnecessary?
-        execl("/usr/bin/gdb", "gdb", "--batch", "-n", "-ex", "thread", "-ex", "bt", name_buf, pid_buf, NULL);
-        abort(); /* If gdb failed to start */
-    } else {
-        waitpid(child_pid,NULL,0);
-    }
-}
-
-#else
-
-STACK_INVEST_EXPORT void StackInvestPrintTrace(void){}
-
-#endif
-
 
 #define STACK_INVEST_SYMBOLS_COUNT_MAX  256
+
 
 STACK_INVEST_EXPORT struct StackInvestBacktrace* StackInvestInitBacktraceDataForCurrentStack(int a_goBackInTheStackCalc)
 {
@@ -103,6 +71,19 @@ STACK_INVEST_EXPORT struct StackInvestBacktrace* StackInvestInitBacktraceDataFor
 }
 
 
+#ifdef STACK_INVEST_LIBDWARF_USED
+
+
+struct SModuleDwarfEntry{
+    size_t              offset;
+    CinternalDLLHash_t  addrItemHash;
+};
+
+
+static CinternalDLLHash_t   s_dwarfModulesHash = CPPUTILS_NULL;
+static pthread_mutex_t      s_dwarfMutex;
+
+
 STACK_INVEST_EXPORT void StackInvestConvertBacktraceToNamesRaw(const struct StackInvestBacktrace* a_data, struct StackInvestStackItem* a_pStack, size_t a_bufferSize)
 {
     if(a_data){
@@ -125,8 +106,75 @@ STACK_INVEST_EXPORT void StackInvestConvertBacktraceToNamesRaw(const struct Stac
 }
 
 
+static void DeallocateIemFromDwarfModulesHashInline(struct SModuleDwarfEntry* a_pDwarfModule) CPPUTILS_NOEXCEPT
+{
+    (void)a_pDwarfModule;
+}
 
+
+static void DeallocateIemFromDwarfModulesHash(void* a_pDwarfModule) CPPUTILS_NOEXCEPT
+{
+    DeallocateIemFromDwarfModulesHashInline(CPPUTILS_STATIC_CAST(struct SModuleDwarfEntry*,a_pDwarfModule));
+}
+
+
+#else   //  #ifdef STACK_INVEST_LIBDWARF_USED
+
+
+STACK_INVEST_EXPORT void StackInvestConvertBacktraceToNamesRaw(const struct StackInvestBacktrace* a_data, struct StackInvestStackItem* a_pStack, size_t a_bufferSize)
+{
+    if(a_data){
+        size_t i =0;
+        const size_t cunSynbols = CPPUTILS_STATIC_CAST(size_t,a_data->stackDeepness)>a_bufferSize?a_bufferSize:CPPUTILS_STATIC_CAST(size_t,a_data->stackDeepness);
+        char** ppStrings = backtrace_symbols(a_data->ppBuffer,a_data->stackDeepness);
+        if(!ppStrings){return;}
+
+        for(; i < cunSynbols; ++i){
+            a_pStack[i].address = a_data->ppBuffer[i];
+            a_pStack[i].binFile = strdup(ppStrings[i]);
+            a_pStack[i].funcName = strdup("");
+            a_pStack[i].sourceFile = strdup("");
+			a_pStack[i].reserved01 = 0;
+			a_pStack[i].line = -1;
+        }
+
+        STACK_INVEST_C_LIB_FREE_NO_CLBK(ppStrings);
+    }
+}
+
+
+#endif  //  #ifdef STACK_INVEST_LIBDWARF_USED
+
+static void stack_investigator_backtrace_unix_cleanup(void){
+        
+#ifdef STACK_INVEST_LIBDWARF_USED
+    
+    CInternalDLLHashDestroyEx(s_dwarfModulesHash,&DeallocateIemFromDwarfModulesHash);
+    pthread_mutex_destroy(&s_dwarfMutex);
+    
+#endif  //  #ifdef STACK_INVEST_LIBDWARF_USED
+    
+}
+
+CPPUTILS_CODE_INITIALIZER(stack_investigator_backtrace_unix_initialize){    
+
+#ifdef STACK_INVEST_LIBDWARF_USED
+    
+    if(pthread_mutex_init(&s_dwarfMutex,CPPUTILS_NULL)){
+        exit(1);
+    }
+    
+#endif  //  #ifdef STACK_INVEST_LIBDWARF_USED
+    
+    s_dwarfModulesHash = CInternalDLLHashCreateExRawMem(1024,& STACK_INVEST_ANY_ALLOC, & STACK_INVEST_ANY_FREE);
+    if(!s_dwarfModulesHash){
+        pthread_mutex_destroy(&s_dwarfMutex);
+        exit(1);
+    }
+    
+    atexit(&stack_investigator_backtrace_unix_cleanup);
+
+}
 
 
 #endif  // #ifndef _WIN32
-#endif // #ifndef CRASH_INVEST_DO_NOT_USE_AT_ALL

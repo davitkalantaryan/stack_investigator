@@ -33,6 +33,8 @@ SOURCES += "$${PWD}/../../../src/core/stack_investigator_backtrace_windows.c"
 
 SOURCES += "$${PWD}/../../../src/core/cpp/stack_investigator_cinvestigator.cpp"
 
+SOURCES += "$${cinternalRepoRoot}/src/core/cinternal_core_hash_dllhash.c"
+
 
 HEADERS += \
 	"$${PWD}/../../../src/core/stack_investigator_private_internal.h"	\

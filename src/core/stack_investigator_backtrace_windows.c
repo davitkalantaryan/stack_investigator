@@ -5,7 +5,6 @@
 // created on:	2021 Nov 25
 //
 
-#ifndef STACK_INVEST_DO_NOT_USE_STACK_INVESTIGATION
 #if defined(_WIN32) || defined(__INTELLISENSE__)
 
 #include <stack_investigator/investigator.h>
@@ -24,8 +23,6 @@
 #pragma comment (lib, "Dbghelp.lib")
 #endif
 
-
-STACK_INVEST_EXPORT void StackInvestPrintTrace(void) {}
 
 // see: https://docs.microsoft.com/en-us/previous-versions/windows/desktop/legacy/bb204633(v=vs.85)?redirectedfrom=MSDN
 
@@ -177,4 +174,3 @@ static void StackInvestGetSymbolInfo(struct StackInvestStackItem* a_pStackItem)
 
 
 #endif // #if defined(_WIN32) || defined(__INTELLISENSE__)
-#endif // #ifndef STACK_INVEST_DO_NOT_USE_STACK_INVESTIGATION

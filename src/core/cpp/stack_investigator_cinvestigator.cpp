@@ -154,7 +154,6 @@ void StackItems::printStack(const TypePrint1& a_fnc)const
 			pFrames[i].address, pFrames[i].binFile, pFrames[i].funcName,
 			pFrames[i].sourceFile, pFrames[i].line);
 	}
-	StackInvestPrintTrace();
 
 
     //printStack((FILE*)a_fnc,[](FILE* a_fl, const char* a_frm, ...){
@@ -174,7 +173,6 @@ void StackItems::printStack(FILE* a_file, const TypePrint2& a_fnc)const
 			pFrames[i].address, pFrames[i].binFile, pFrames[i].funcName,
 			pFrames[i].sourceFile, pFrames[i].line);
 	}
-	StackInvestPrintTrace();
 }
 
 

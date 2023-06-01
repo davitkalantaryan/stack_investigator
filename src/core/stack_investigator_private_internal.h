@@ -34,8 +34,6 @@ extern void STACK_INVEST_C_LIB_FREE_NO_CLBK(void*);
 #endif
 
 
-
-
 #if !defined(STACK_INVEST_ANY_ALLOC_D) || !defined(STACK_INVEST_FREE_D)  || !defined(STACK_INVEST_C_LIB_FREE_NO_CLBK_D)
 #include <stdlib.h>
 #endif

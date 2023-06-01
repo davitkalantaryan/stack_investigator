@@ -10,7 +10,8 @@
 TEMPLATE = subdirs
 CONFIG += ordered
 
-
+include("$${PWD}/../../prj/common/common_qt/sys_common.pri")
+include("$${PWD}/../../prj/common/common_qt/flags_common.pri")
 repositoryRoot = $${PWD}/../..
 
 SUBDIRS		+=	"$${repositoryRoot}/prj/tests/stack_invest01_test_qt/stack_invest01_test.pro"
