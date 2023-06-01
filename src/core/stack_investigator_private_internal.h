@@ -8,7 +8,7 @@
 #ifndef STACK_INVEST_SRC_CORE_STACK_INVESTIGATOR_PRIVATE_INTERNAL_H
 #define STACK_INVEST_SRC_CORE_STACK_INVESTIGATOR_PRIVATE_INTERNAL_H
 
-#include <stack_investigator/internal_header.h>
+#include <stack_investigator/export_symbols.h>
 #include <stddef.h>
 
 #ifdef STACK_INVEST_ANY_ALLOC

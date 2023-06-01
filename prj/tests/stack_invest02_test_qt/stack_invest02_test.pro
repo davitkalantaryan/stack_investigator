@@ -2,9 +2,8 @@
 # File crash_investigateor.pro
 # File created : 18 Nov 2021
 # Created by : Davit Kalantaryan (davit.kalantaryan@desy.de)
-# This file can be used to produce Makefile for daqadcreceiver application
-# for PITZ
-# CONFIG += 2test
+# This file can be used to produce Makefile
+# 
 
 #QMAKE_CXXFLAGS += "-include types.h"
 #DEFINES += u_int=unsigned
@@ -15,23 +14,10 @@
 DEFINES += STACK_INVEST_USING_STATIC_LIB_OR_OBJECTS
 
 
-win32{
-	QMAKE_CXXFLAGS += /Wall /WX
-	QMAKE_CFLAGS += /Wall /WX
-} else {
-	QMAKE_CXXFLAGS += -std=c++11
-	QMAKE_CXXFLAGS += -Wall
-	QMAKE_CXXFLAGS += -Werror
-	QMAKE_CXXFLAGS += -Wno-attributes
-	QMAKE_CFLAGS += -Wall
-	QMAKE_CFLAGS += -Werror
-	QMAKE_CFLAGS += -Wno-attributes
-        GCCPATH = $$system(which g++)
-        message("!!!!!!!!!!! GPPPATH=$$GCCPATH")
-}
-
 include("$${PWD}/../../common/common_qt/sys_common.pri")
+include("$${PWD}/../../common/common_qt/flags_common.pri")
 DESTDIR = $${artifactRoot}/$${SYSTEM_PATH}/test
+
 
 QT -= core
 QT -= gui

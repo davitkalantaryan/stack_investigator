@@ -8,7 +8,7 @@
 #ifndef STACK_INVEST_INCLUDE_STACK_INVESTIGATOR_H
 #define STACK_INVEST_INCLUDE_STACK_INVESTIGATOR_H
 
-#include <stack_investigator/internal_header.h>
+#include <stack_investigator/export_symbols.h>
 #include <stddef.h>
 #include <stdbool.h>
 

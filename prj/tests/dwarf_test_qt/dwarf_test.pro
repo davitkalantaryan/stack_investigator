@@ -2,9 +2,7 @@
 # File crash_investigateor.pro
 # File created : 18 Nov 2021
 # Created by : Davit Kalantaryan (davit.kalantaryan@desy.de)
-# This file can be used to produce Makefile
-#
-
+# This file can be used to produce Makefile for daqadcreceiver application
 
 #DEFINES += DEBUG_APP
 
@@ -24,7 +22,7 @@ INCLUDEPATH += $${PWD}/../../../include
 INCLUDEPATH += $${PWD}/../../../contrib/cpputils/include
 
 
-SOURCES += "$${PWD}/../../../src/tests/other/main_stack_invest05_test.cpp"
+SOURCES += "$${PWD}/../../../src/tests/other/main_dwarf_test.cpp"
 
 SOURCES += "$${PWD}/../../../src/core/stack_investigator_backtrace_common.c"
 SOURCES += "$${PWD}/../../../src/core/stack_investigator_backtrace_unix.c"

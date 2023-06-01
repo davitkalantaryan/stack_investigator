@@ -13,7 +13,7 @@
 #ifndef STACK_INVEST_DO_NOT_USE_STACK_INVESTIGATION
 #if !defined(_WIN32) || defined(__INTELLISENSE__)
 
-#include <stack_investigator/internal_header.h>
+#include <stack_investigator/export_symbols.h>
 
 #if !defined(__EMSCRIPTEN__)
 #define CRASH_INVESTEXECINFO_DEFINED
