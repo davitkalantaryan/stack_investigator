@@ -17,6 +17,12 @@ QT -= core
 QT -= gui
 CONFIG -= qt
 
+win32 {
+} else {
+    LIBS += -ldwarf
+    LIBS += -pthread
+}
+
 #DEFINES += CRASH_INVEST_DO_NOT_USE_MAL_FREE
 DEFINES += STACK_INVEST_USING_STATIC_LIB_OR_OBJECTS
 DEFINES += STACK_INVEST_USING_STATIC_LIB_OR_OBJECTS_CPP
@@ -24,15 +30,9 @@ DEFINES += STACK_INVEST_USING_STATIC_LIB_OR_OBJECTS_CPP
 INCLUDEPATH += $${PWD}/../../../include
 INCLUDEPATH += $${PWD}/../../../contrib/cpputils/include
 
-
 SOURCES += "$${PWD}/../../../src/tests/other/main_stack_invest04_test.cpp"
-
-SOURCES += "$${PWD}/../../../src/core/stack_investigator_backtrace_common.c"
-SOURCES += "$${PWD}/../../../src/core/stack_investigator_backtrace_unix.c"
-SOURCES += "$${PWD}/../../../src/core/stack_investigator_backtrace_windows.c"
-
+SOURCES += $$files($${PWD}/../../../src/core/*.c,false)
 SOURCES += "$${PWD}/../../../src/core/cpp/stack_investigator_cinvestigator.cpp"
-
 SOURCES += "$${cinternalRepoRoot}/src/core/cinternal_core_hash_dllhash.c"
 
 

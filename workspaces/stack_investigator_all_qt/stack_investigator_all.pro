@@ -6,7 +6,6 @@
 # purpose:	Qt Project file
 #
 
-
 TEMPLATE = subdirs
 CONFIG += ordered
 
@@ -29,7 +28,6 @@ includeCppUtils {
 testsFromWorkspace {
 	SUBDIRS		+=	"$${repositoryRoot}/prj/tests/googletest_mult/googletest_getter.pro"
 }
-
 
 
 OTHER_FILES += $$files($${repositoryRoot}/scripts/*.sh,true)

@@ -14,7 +14,12 @@ QT -= core
 QT -= gui
 CONFIG -= qt
 
-LIBS += -ldwarf
+
+win32 {
+} else {
+    LIBS += -ldwarf
+    LIBS += -pthread
+}
 
 #DEFINES += CRASH_INVEST_DO_NOT_USE_MAL_FREE
 DEFINES += STACK_INVEST_USING_STATIC_LIB_OR_OBJECTS
