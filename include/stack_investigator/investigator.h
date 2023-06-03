@@ -36,11 +36,11 @@ STACK_INVEST_EXPORT struct StackInvestBacktrace* StackInvestInitBacktraceDataFor
 STACK_INVEST_EXPORT struct StackInvestBacktrace* StackInvestCloneBackTrace(const struct StackInvestBacktrace* a_btr);
 STACK_INVEST_EXPORT bool StackInvestIsTheSameStack(const struct StackInvestBacktrace* a_stack1, const struct StackInvestBacktrace* a_stack2);
 STACK_INVEST_EXPORT size_t StackInvestHashOfTheStack(struct StackInvestBacktrace* a_stack);
-STACK_INVEST_EXPORT void StackInvestConvertBacktraceToNamesRaw(const struct StackInvestBacktrace* a_data, struct StackInvestStackItem* a_pStack, size_t a_bufferSize);
 STACK_INVEST_EXPORT void StackInvestFreeBacktraceData(struct StackInvestBacktrace* a_data);
+STACK_INVEST_EXPORT int  StackInvestConvertBacktraceToNamesRaw(const struct StackInvestBacktrace* a_data, size_t a_offset, struct StackInvestStackItem* a_pStack, size_t a_bufferSize);
 STACK_INVEST_EXPORT void StackInvestFreeStackItemData(struct StackInvestStackItem* a_pStack);
 
-#define StackInvestConvertBacktraceToNames(_data,_pStack)  StackInvestConvertBacktraceToNamesRaw((_data),(_pStack),CPPUTILS_STATIC_CAST(size_t,(_data)->stackDeepness))
+#define StackInvestConvertBacktraceToNames(_data,_pStack)  StackInvestConvertBacktraceToNamesRaw((_data),0,(_pStack),CPPUTILS_STATIC_CAST(size_t,(_data)->stackDeepness))
 
 
 CPPUTILS_END_C

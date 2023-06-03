@@ -18,14 +18,9 @@
 #define CRASH_INVESTEXECINFO_DEFINED
 #endif
 
-#if !defined(STACK_INVEST_NOT_USE_LIBDWARF) && !defined(STACK_INVEST_LIBDWARF_USED)
-#if defined(__linux__) || defined(__linux)
-#define STACK_INVEST_LIBDWARF_USED
-#endif
-#endif  //  #if !defined(STACK_INVEST_NOT_USE_LIBDWARF) && !defined(STACK_INVEST_LIBDWARF_USED)
-
 #include <stack_investigator/investigator.h>
 #include "stack_investigator_private_internal.h"
+#include "stack_investigator_private_addr_to_details_unix.h"
 #include <string.h>
 #include <alloca.h>
 #include <stdio.h>
@@ -34,11 +29,16 @@
 #ifdef CRASH_INVESTEXECINFO_DEFINED
 #include <execinfo.h>
 #endif
+
+
+CPPUTILS_BEGIN_C
+
 #ifdef STACK_INVEST_LIBDWARF_USED
-#include <cinternal/hash/dllhash.h>
-#include <pthread.h>
-#include <libdwarf/libdwarf.h>
-#include <libdwarf/dwarf.h>
+    #define StackInvestDetailsFromFrameAddressMacro StackInvestDetailsFromFrameAddress_Dwarf
+#elif defined(STACK_INVEST_ADDRTOLINE_USED)
+    #define StackInvestDetailsFromFrameAddressMacro StackInvestDetailsFromFrameAddress_addrtoline
+#else
+    #define StackInvestDetailsFromFrameAddressMacro StackInvestDetailsFromFrameAddress_empty
 #endif
 
 #define STACK_INVEST_SYMBOLS_COUNT_MAX  256
@@ -71,110 +71,59 @@ STACK_INVEST_EXPORT struct StackInvestBacktrace* StackInvestInitBacktraceDataFor
 }
 
 
-#ifdef STACK_INVEST_LIBDWARF_USED
-
-
-struct SModuleDwarfEntry{
-    size_t              offset;
-    CinternalDLLHash_t  addrItemHash;
-};
-
-
-static CinternalDLLHash_t   s_dwarfModulesHash = CPPUTILS_NULL;
-static pthread_mutex_t      s_dwarfMutex;
-
-
-STACK_INVEST_EXPORT void StackInvestConvertBacktraceToNamesRaw(const struct StackInvestBacktrace* a_data, struct StackInvestStackItem* a_pStack, size_t a_bufferSize)
+STACK_INVEST_EXPORT int StackInvestConvertBacktraceToNamesRaw(const struct StackInvestBacktrace* a_data, size_t a_offset, struct StackInvestStackItem* a_pStack, size_t a_bufferSize)
 {
     if(a_data){
-        size_t i =0;
-        const size_t cunSynbols = CPPUTILS_STATIC_CAST(size_t,a_data->stackDeepness)>a_bufferSize?a_bufferSize:CPPUTILS_STATIC_CAST(size_t,a_data->stackDeepness);
-        char** ppStrings = backtrace_symbols(a_data->ppBuffer,a_data->stackDeepness);
-        if(!ppStrings){return;}
+        size_t cunBinLen;
+        char* pcBinName;
+        size_t i =0, j;
+        const size_t cunOffset = (a_offset>CPPUTILS_STATIC_CAST(size_t,a_data->stackDeepness))?0:a_offset;
+        const size_t cunCountAfterOffset = CPPUTILS_STATIC_CAST(size_t,a_data->stackDeepness)-cunOffset;
+        const size_t cunSynbols = cunCountAfterOffset>a_bufferSize?a_bufferSize:cunCountAfterOffset;
+        char** ppStrings = backtrace_symbols(a_data->ppBuffer + cunOffset,CPPUTILS_STATIC_CAST(int,cunSynbols));
+        if(!ppStrings){return 1;}
 
         for(; i < cunSynbols; ++i){
-            a_pStack[i].address = a_data->ppBuffer[i];
-            a_pStack[i].binFile = strdup(ppStrings[i]);
-            a_pStack[i].funcName = strdup("");
-            a_pStack[i].sourceFile = strdup("");
-			a_pStack[i].reserved01 = 0;
-			a_pStack[i].line = -1;
+            CPPUTILS_STATIC_CAST(void,a_pStack[i].reserved01);
+            a_pStack[i].address = a_data->ppBuffer[i+cunOffset];
+            cunBinLen = strcspn(ppStrings[i],"([\0");
+            pcBinName = CPPUTILS_STATIC_CAST(char*,STACK_INVEST_ANY_ALLOC(cunBinLen+1));
+            if(!pcBinName){
+                for(j=0;j<i;++j){
+                    STACK_INVEST_ANY_FREE(CPPUTILS_CONST_CAST(char*,a_pStack[j].binFile));
+                }
+                STACK_INVEST_C_LIB_FREE_NO_CLBK(ppStrings);
+                return 1;
+            }
+            memcpy(pcBinName,ppStrings[i],cunBinLen);
+            pcBinName[cunBinLen]=0;
+            a_pStack[i].binFile = pcBinName;
+            if(StackInvestDetailsFromFrameAddressMacro(&a_pStack[i])){
+                for(j=0;j<i;++j){
+                    STACK_INVEST_ANY_FREE(CPPUTILS_CONST_CAST(char*,a_pStack[j].binFile));
+                }
+                STACK_INVEST_C_LIB_FREE_NO_CLBK(ppStrings);
+                return 1;
+            }
         }
 
         STACK_INVEST_C_LIB_FREE_NO_CLBK(ppStrings);
+        return 0;
     }
-}
-
-
-static void DeallocateIemFromDwarfModulesHashInline(struct SModuleDwarfEntry* a_pDwarfModule) CPPUTILS_NOEXCEPT
-{
-    (void)a_pDwarfModule;
-}
-
-
-static void DeallocateIemFromDwarfModulesHash(void* a_pDwarfModule) CPPUTILS_NOEXCEPT
-{
-    DeallocateIemFromDwarfModulesHashInline(CPPUTILS_STATIC_CAST(struct SModuleDwarfEntry*,a_pDwarfModule));
-}
-
-
-#else   //  #ifdef STACK_INVEST_LIBDWARF_USED
-
-
-STACK_INVEST_EXPORT void StackInvestConvertBacktraceToNamesRaw(const struct StackInvestBacktrace* a_data, struct StackInvestStackItem* a_pStack, size_t a_bufferSize)
-{
-    if(a_data){
-        size_t i =0;
-        const size_t cunSynbols = CPPUTILS_STATIC_CAST(size_t,a_data->stackDeepness)>a_bufferSize?a_bufferSize:CPPUTILS_STATIC_CAST(size_t,a_data->stackDeepness);
-        char** ppStrings = backtrace_symbols(a_data->ppBuffer,a_data->stackDeepness);
-        if(!ppStrings){return;}
-
-        for(; i < cunSynbols; ++i){
-            a_pStack[i].address = a_data->ppBuffer[i];
-            a_pStack[i].binFile = strdup(ppStrings[i]);
-            a_pStack[i].funcName = strdup("");
-            a_pStack[i].sourceFile = strdup("");
-			a_pStack[i].reserved01 = 0;
-			a_pStack[i].line = -1;
-        }
-
-        STACK_INVEST_C_LIB_FREE_NO_CLBK(ppStrings);
-    }
-}
-
-
-#endif  //  #ifdef STACK_INVEST_LIBDWARF_USED
-
-static void stack_investigator_backtrace_unix_cleanup(void){
-        
-#ifdef STACK_INVEST_LIBDWARF_USED
     
-    CInternalDLLHashDestroyEx(s_dwarfModulesHash,&DeallocateIemFromDwarfModulesHash);
-    pthread_mutex_destroy(&s_dwarfMutex);
-    
-#endif  //  #ifdef STACK_INVEST_LIBDWARF_USED
-    
+    return 1;
+}
+
+
+static void stack_investigator_backtrace_unix_cleanup(void){    
 }
 
 CPPUTILS_CODE_INITIALIZER(stack_investigator_backtrace_unix_initialize){    
-
-#ifdef STACK_INVEST_LIBDWARF_USED
-    
-    if(pthread_mutex_init(&s_dwarfMutex,CPPUTILS_NULL)){
-        exit(1);
-    }
-    
-#endif  //  #ifdef STACK_INVEST_LIBDWARF_USED
-    
-    s_dwarfModulesHash = CInternalDLLHashCreateExRawMem(1024,& STACK_INVEST_ANY_ALLOC, & STACK_INVEST_ANY_FREE);
-    if(!s_dwarfModulesHash){
-        pthread_mutex_destroy(&s_dwarfMutex);
-        exit(1);
-    }
-    
     atexit(&stack_investigator_backtrace_unix_cleanup);
-
 }
+
+
+CPPUTILS_END_C
 
 
 #endif  // #ifndef _WIN32

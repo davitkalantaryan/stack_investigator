@@ -21,6 +21,7 @@ win32{
 	LIBS += "$${PWD}/../../../sys/$$CODENAME/$$CONFIGURATION/lib/libgtest_main$${nameExtension}.a"
 	LIBS += "$${PWD}/../../../sys/$$CODENAME/$$CONFIGURATION/lib/libgtest$${nameExtension}.a"
 	LIBS += -ldwarf
+	LIBS += -ldl
 	LIBS += -pthread
 }
 

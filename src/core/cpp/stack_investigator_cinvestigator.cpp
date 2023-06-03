@@ -130,7 +130,7 @@ StackItems::StackItems(const Backtrace& a_st)
         throw "Low memory"; // todo: replace this with proper exception
     }
 
-    StackInvestConvertBacktraceToNamesRaw(a_st.m_bt_data_ptr->m_pStack,m_st_itms_data_ptr->m_pStackItems,m_st_itms_data_ptr->m_itemsCount);
+    StackInvestConvertBacktraceToNamesRaw(a_st.m_bt_data_ptr->m_pStack,0,m_st_itms_data_ptr->m_pStackItems,m_st_itms_data_ptr->m_itemsCount);
 }
 
 

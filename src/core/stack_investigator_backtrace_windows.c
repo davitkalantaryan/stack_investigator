@@ -61,16 +61,21 @@ STACK_INVEST_EXPORT struct StackInvestBacktrace* StackInvestInitBacktraceDataFor
 
 static void StackInvestGetSymbolInfo(struct StackInvestStackItem* a_pItem);
 
-STACK_INVEST_EXPORT void StackInvestConvertBacktraceToNamesRaw(const struct StackInvestBacktrace* a_data, struct StackInvestStackItem* a_pStack, size_t a_bufferSize)
+STACK_INVEST_EXPORT void StackInvestConvertBacktraceToNamesRaw(const struct StackInvestBacktrace* a_data, size_t a_offset, struct StackInvestStackItem* a_pStack, size_t a_bufferSize)
 {
-	size_t i = 0;
-	const size_t cunSynbols = CPPUTILS_STATIC_CAST(size_t, a_data->stackDeepness) > a_bufferSize ? a_bufferSize : CPPUTILS_STATIC_CAST(size_t, a_data->stackDeepness);
-
-	for (; i < cunSynbols; ++i) {
-		a_pStack[i].reserved01 = 0;
-		a_pStack[i].address = a_data->ppBuffer[i];
-		StackInvestGetSymbolInfo(&a_pStack[i]);
-	}
+    if(a_data){
+        size_t i = 0;
+        const size_t cunOffset = (a_offset>CPPUTILS_STATIC_CAST(size_t,a_data->stackDeepness))?0:a_offset;
+        const size_t cunCountAfterOffset = CPPUTILS_STATIC_CAST(size_t,a_data->stackDeepness)-cunOffset;
+        const size_t cunSynbols = cunCountAfterOffset>a_bufferSize?a_bufferSize:cunCountAfterOffset;
+        
+        for (; i < cunSynbols; ++i) {
+            CPPUTILS_STATIC_CAST(void,a_pStack[i].reserved01);
+            a_pStack[i].address = a_data->ppBuffer[i-cunOffset];
+            StackInvestGetSymbolInfo(&a_pStack[i]);
+        }
+        
+    }  //  if(a_data){    
 }
 
 

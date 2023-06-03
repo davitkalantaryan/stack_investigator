@@ -17,6 +17,7 @@ CONFIG -= qt
 win32 {
 } else {
     LIBS += -ldwarf
+    LIBS += -ldl
     LIBS += -pthread
 }
 
