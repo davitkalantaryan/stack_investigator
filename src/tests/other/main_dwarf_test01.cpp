@@ -1,13 +1,15 @@
 #include "libdwarf/libdwarf.h"
 #include "libdwarf/dwarf.h"
+#include <execinfo.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
 
 
-#if 1
-char* GetFunctionNames(Dwarf_Addr addr, Dwarf_Debug dbg, Dwarf_Die cu_die)
+static int s_nLineToReport = 0;
+
+static char* GetFunctionNames(Dwarf_Addr addr, Dwarf_Debug dbg, Dwarf_Die cu_die)
 {
     Dwarf_Die child_die;
     Dwarf_Error error;
@@ -62,9 +64,8 @@ char* GetFunctionNames(Dwarf_Addr addr, Dwarf_Debug dbg, Dwarf_Die cu_die)
     
 }
 
-#endif //  #if 0
 
-void print_dwarf_info(int fd) {
+static void print_dwarf_info(int fd) {
     Dwarf_Debug dbg;
     Dwarf_Error err;
     Dwarf_Line *linebuf;
@@ -122,7 +123,11 @@ void print_dwarf_info(int fd) {
                     
                     char *funcName = GetFunctionNames(lineaddr,dbg,cu_die);
         
-                    printf("0x%llx %s:%llu, fn:%s\n", lineaddr, filename, lineno,(funcName?funcName:"null"));
+                    //if(s_nLineToReport==int(lineno))
+                    {
+                        printf("0x%llx %s:%llu, fn:%s\n", lineaddr, filename, lineno,(funcName?funcName:"null"));
+                    }
+                    
                     if(funcName){
                         dwarf_dealloc(dbg, funcName, DW_DLA_STRING);
                     }
@@ -145,9 +150,21 @@ void print_dwarf_info(int fd) {
 }
 
 int main(int argc, char *argv[]) {
+    int nAddresses;
+    char** ppSymbols = NULL;
+    void* vFames[1024];
     const char* cpcProgname = argv[0];
     if (argc > 1) {
         cpcProgname = argv[1];
+    }
+    
+    nAddresses=backtrace(vFames,1024);
+    s_nLineToReport= __LINE__ - 1;
+    if(nAddresses>0){
+        ppSymbols= backtrace_symbols(vFames,nAddresses);
+        if(!ppSymbols){
+            exit(1);
+        }
     }
 
     int fd = open(cpcProgname, O_RDONLY);
@@ -159,6 +176,16 @@ int main(int argc, char *argv[]) {
     print_dwarf_info(fd);
 
     close(fd);
+    
+    for(int i(0);i<nAddresses;++i){
+        printf("frame[%d] = %s[%p]\n",i,ppSymbols[i],vFames[i]);
+    }
+    
+    free(ppSymbols);
+    
+    printf("If debugging is needed, then connect with debugger, then press enter to proceed  ! ");
+	fflush(stdout);
+	getchar();
 
     return 0;
 }

@@ -41,17 +41,11 @@ CPPUTILS_BEGIN_C
 
 
 struct SModuleDwarfEntry{
-    bool                hasDebugInfo;
-    bool                reserved01[7];
-    size_t              offset;
-    CinternalDLLHash_t  addrItemHash;
-};
-
-struct StackInvestStackItemBasic {
-    const char*     funcName;
-    const char*     sourceFile;  // empty means unavailable
-    int             line;      // <0 means unknown (no debug info available)
-    int             reserved01;
+    bool                            hasDebugInfo;
+    bool                            reserved01[7];
+    size_t                          offset;
+    size_t                          entriesCount;
+    struct StackInvestStackItem**   ppEntries;
 };
 
 
@@ -82,12 +76,42 @@ static char* StackInvestStrdupInline(const char* a_cpcString){
 }
 
 
+static inline const struct StackInvestStackItem* FindNearestStackInfoItemInline(const struct SModuleDwarfEntry* a_pDwEntry, const void* a_pFrameAddress){
+    const size_t cunFrameAddress = (size_t)a_pFrameAddress;
+    size_t unDwarfAddress;
+    const struct StackInvestStackItem* pItem;
+    size_t unIndex1 = 0;
+    size_t unIndex2 = a_pDwEntry->entriesCount - 1;
+    size_t unIndexMid = a_pDwEntry->entriesCount/2;
+    
+    while(a_pDwEntry->entriesCount){
+        pItem = (a_pDwEntry->ppEntries)[unIndexMid];
+        unDwarfAddress = (size_t)(pItem->address);
+        if(unDwarfAddress==cunFrameAddress){
+            return pItem;
+        }
+        else if(cunFrameAddress<unDwarfAddress){
+            unIndex2 = unIndexMid;
+        }
+        else{
+            unIndex1 = unIndexMid;
+        }
+        
+        if((unIndex2-unIndex1)<2){
+            return (a_pDwEntry->ppEntries)[unIndex1];
+        }
+        unIndexMid = (unIndex1+unIndex2+1)/2;
+    }
+    
+    return CPPUTILS_NULL;
+}
+
+
 CPPUTILS_DLL_PRIVATE int StackInvestDetailsFromFrameAddress_Dwarf(struct StackInvestStackItem* a_pStack)
 {
     struct SModuleDwarfEntry* pDwEntry;
-    struct StackInvestStackItemBasic* pStackInfoItem;
+    const struct StackInvestStackItem* pStackInfoItem;
     CinternalDLLHashItem_t moduleItem;
-    CinternalDLLHashItem_t stackItem;
     size_t unHash;
     const size_t cunBinFlNameLenPlus1 = strlen(a_pStack->binFile) + 1;
     STACK_INVEST_RW_MUTEX_RD_LOCK(s_pDwarfMutex);
@@ -117,18 +141,18 @@ CPPUTILS_DLL_PRIVATE int StackInvestDetailsFromFrameAddress_Dwarf(struct StackIn
     }
     
     if(pDwEntry->hasDebugInfo){
-        stackItem = CInternalDLLHashFindEx(s_dwarfModulesHash,a_pStack->address,0,&unHash);
-        if(!stackItem){return 1;} // this should never happen and this can be replaced by assert
-        pStackInfoItem = CPPUTILS_STATIC_CAST(struct StackInvestStackItemBasic*,stackItem->data);
-        a_pStack->funcName = StackInvestStrdupInline(pStackInfoItem->funcName);
-        if(!(a_pStack->funcName)){return 1;}
-        a_pStack->sourceFile = StackInvestStrdupInline(pStackInfoItem->sourceFile);
-        if(!(a_pStack->sourceFile)){
-            STACK_INVEST_ANY_FREE(CPPUTILS_CONST_CAST(char*,a_pStack->funcName));
-            return 1;
+        pStackInfoItem = FindNearestStackInfoItemInline(pDwEntry,a_pStack->address);
+        if(pStackInfoItem){
+            a_pStack->funcName = StackInvestStrdupInline(pStackInfoItem->funcName);
+            if(!(a_pStack->funcName)){return 1;}
+            a_pStack->sourceFile = StackInvestStrdupInline(pStackInfoItem->sourceFile);
+            if(!(a_pStack->sourceFile)){
+                STACK_INVEST_ANY_FREE(CPPUTILS_CONST_CAST(char*,a_pStack->funcName));
+                return 1;
+            }
+            a_pStack->line = pStackInfoItem->line;
+            return 0;
         }
-        a_pStack->line = pStackInfoItem->line;
-        return 0;
     }
     
     a_pStack->funcName = StackInvestStrdupInline("UnknownFunction");
@@ -143,7 +167,44 @@ CPPUTILS_DLL_PRIVATE int StackInvestDetailsFromFrameAddress_Dwarf(struct StackIn
 }
 
 
-static int CollectDwarfInfo(int a_modFd, struct SModuleDwarfEntry* a_pDwarfEntry);
+static int CollectDwarfInfo(int a_modFd, struct SModuleDwarfEntry* a_pDwarfEntry,const void* a_pAnyAddress);
+
+
+static inline ptrdiff_t FindMainExecutableCodeOffsetInline(const char* a_cpcModuleName){
+    ptrdiff_t addrRet = -1;
+    FILE *fp;
+    char buffer[4096];
+    unsigned long long int addr = 0;
+    char str[20];
+    char perms[5];
+    const char* cpcModuleFileName;
+    
+    
+    if ((fp = fopen("/proc/self/maps", "r")) == CPPUTILS_NULL) {
+        fprintf(stderr,"[!] Error, could not open maps file for this process\n");
+        return -1;
+    }
+    
+    cpcModuleFileName = strrchr(a_cpcModuleName,'/');
+    if(!cpcModuleFileName){
+        cpcModuleFileName = a_cpcModuleName;
+    }
+    
+    while(fgets(buffer, 4096, fp) != CPPUTILS_NULL) {
+        if(strstr(buffer,cpcModuleFileName)){
+            sscanf(buffer, "%llx-%*x %s %*s %s %*d", &addr, perms, str);
+            //if(strstr(perms, "x") != CPPUTILS_NULL) {
+            //    addrRet = CPPUTILS_STATIC_CAST(ptrdiff_t,addr);
+            //    break;
+            //}  //  if(strstr(perms, "x") != CPPUTILS_NULL) {
+            addrRet = CPPUTILS_STATIC_CAST(ptrdiff_t,addr);
+            break;
+        }  //  if(strstr(buffer,cpcModuleFileName)){
+    }  //  while(fgets(buffer, 4096, fp) != CPPUTILS_NULL) {
+    
+    fclose(fp);
+    return addrRet;
+}
 
 
 struct SModuleDwarfEntry* CreateDwarfEntryForModule(const char* a_cpcModuleName, const void* a_pAnyAddress)
@@ -155,9 +216,17 @@ struct SModuleDwarfEntry* CreateDwarfEntryForModule(const char* a_cpcModuleName,
         return CPPUTILS_NULL;
     }
     
-    if(!dladdr(a_pAnyAddress,&dlInfo)){
-        pDwarfEntry->hasDebugInfo = false;
-        return pDwarfEntry;
+    if((!dladdr(a_pAnyAddress,&dlInfo))||(!(dlInfo.dli_fbase))){
+        // maybe this is a main executable, let's continue examination
+        const ptrdiff_t cnOffset = FindMainExecutableCodeOffsetInline(a_cpcModuleName);
+        if(cnOffset<0){
+            pDwarfEntry->hasDebugInfo = false;
+            return pDwarfEntry;
+        }
+        pDwarfEntry->offset = cnOffset;
+    }
+    else{
+        pDwarfEntry->offset = CPPUTILS_STATIC_CAST(size_t,dlInfo.dli_fbase);
     }
     
     modFd = open(a_cpcModuleName, O_RDONLY);
@@ -166,10 +235,12 @@ struct SModuleDwarfEntry* CreateDwarfEntryForModule(const char* a_cpcModuleName,
         return pDwarfEntry;
     }
     
-    pDwarfEntry->hasDebugInfo = true;
-    pDwarfEntry->addrItemHash = CInternalDLLHashCreateExSmlInt(1024,& STACK_INVEST_ANY_ALLOC, & STACK_INVEST_ANY_FREE);
-    pDwarfEntry->offset = CPPUTILS_STATIC_CAST(size_t,dlInfo.dli_fbase);
-    CollectDwarfInfo(modFd,pDwarfEntry);
+    if(CollectDwarfInfo(modFd,pDwarfEntry,a_pAnyAddress)){
+        pDwarfEntry->hasDebugInfo = false;
+    }
+    else{
+        pDwarfEntry->hasDebugInfo = true;
+    }
     close(modFd);
     
     return pDwarfEntry;
@@ -232,28 +303,69 @@ static inline char* GetFunctionNames(Dwarf_Addr addr, Dwarf_Debug dbg, Dwarf_Die
 }
 
 
-static int CollectDwarfInfo(int a_modFd, struct SModuleDwarfEntry* a_pDwarfEntry)
+static inline void CleanStackItemBaseInline(struct StackInvestStackItem* a_pItem){
+    CPPUTILS_STATIC_CAST(void,a_pItem);
+}
+
+
+static inline void CleanVectorOfItemsInline(struct StackInvestStackItem** a_ppEntries, size_t a_entriesCount){
+    for(size_t i=0; i<a_entriesCount;++i){
+        CleanStackItemBaseInline(a_ppEntries[i]);
+    }
+}
+
+
+static int CompareItems(const void* a_pItem1, const void* a_pItem2)
 {
-    struct StackInvestStackItemBasic* pItem;
+    struct StackInvestStackItem** ppItem1 = (struct StackInvestStackItem**)a_pItem1;
+    struct StackInvestStackItem** ppItem2 = (struct StackInvestStackItem**)a_pItem2;
+    const ptrdiff_t addr1 = (ptrdiff_t)((*ppItem1)->address);
+    const ptrdiff_t addr2 = (ptrdiff_t)((*ppItem2)->address);
+    return (int)(addr1-addr2);
+}
+
+
+#define STACK_INV_REALLOC_STEP  16
+
+
+static int CollectDwarfInfo(int a_modFd, struct SModuleDwarfEntry* a_pDwarfEntry,const void* a_pAnyAddress)
+{
+    //const size_t cunAnyAddress = CPPUTILS_REINTERPRET_CAST(size_t,a_pAnyAddress);
+    struct StackInvestStackItem** ppEntriesTmp;
+    size_t allocatedCount = 0;
+    size_t nextEntriesCount = 0;
+    struct StackInvestStackItem* pItem = CPPUTILS_NULL;
     Dwarf_Debug dbg;
     Dwarf_Error err;
     Dwarf_Line *linebuf;
     Dwarf_Signed linecount;
     Dwarf_Unsigned cu_header_length, abbrev_offset, next_cu_header;
-    Dwarf_Half version_stamp, address_size;   
+    Dwarf_Half version_stamp, address_size;
     Dwarf_Die cu_die = 0;
     Dwarf_Signed i;
     Dwarf_Die no_die = 0;
+    
+    CPPUTILS_REINTERPRET_CAST(void,a_pAnyAddress);
+    a_pDwarfEntry->entriesCount = 0;
+    a_pDwarfEntry->ppEntries = (struct StackInvestStackItem**)malloc(STACK_INV_REALLOC_STEP*sizeof(struct StackInvestStackItem*));
+    if(!(a_pDwarfEntry->ppEntries)){
+        return 1;
+    }
+    allocatedCount = STACK_INV_REALLOC_STEP;
 
     if (dwarf_init(a_modFd, DW_DLC_READ, 0, 0, &dbg, &err) != DW_DLV_OK) {
         fprintf(stderr, "Failed to initialize libdwarf.\n");
         return 1;
     }
-    
+        
     while (1) {
         int res = dwarf_next_cu_header(dbg, &cu_header_length, &version_stamp,&abbrev_offset, 
                                        &address_size, &next_cu_header,&err);
         if (res == DW_DLV_ERROR){
+            //STACK_INVEST_ANY_FREE(pItem);
+            CleanVectorOfItemsInline(a_pDwarfEntry->ppEntries,a_pDwarfEntry->entriesCount);
+            a_pDwarfEntry->ppEntries = CPPUTILS_NULL;
+            a_pDwarfEntry->entriesCount = 0;
             dwarf_finish(dbg, &err);
             return 1;
         }
@@ -290,11 +402,15 @@ static int CollectDwarfInfo(int a_modFd, struct SModuleDwarfEntry* a_pDwarfEntry
                 char *funcName = GetFunctionNames(lineaddr,dbg,cu_die);
                 
                 //printf("0x%llx %s:%llu, fn:%s\n", lineaddr, filename, lineno,(funcName?funcName:"null"));
-                pItem = CPPUTILS_STATIC_CAST(struct StackInvestStackItemBasic*,STACK_INVEST_ANY_ALLOC(sizeof(struct StackInvestStackItemBasic)));
+                pItem = CPPUTILS_STATIC_CAST(struct StackInvestStackItem*,STACK_INVEST_ANY_ALLOC(sizeof(struct StackInvestStackItem)));
                 if(pItem){
                     pItem->funcName = StackInvestStrdupInline(funcName?funcName:"UnknownFunction");
                     if(!(pItem->funcName)){
                         STACK_INVEST_ANY_FREE(pItem);
+                        CleanVectorOfItemsInline(a_pDwarfEntry->ppEntries,a_pDwarfEntry->entriesCount);
+                        a_pDwarfEntry->ppEntries = CPPUTILS_NULL;
+                        a_pDwarfEntry->entriesCount = 0;
+                        dwarf_finish(dbg, &err);
                         return 1;
                     }
                     
@@ -302,18 +418,35 @@ static int CollectDwarfInfo(int a_modFd, struct SModuleDwarfEntry* a_pDwarfEntry
                     if(!(pItem->sourceFile)){
                         STACK_INVEST_ANY_FREE(CPPUTILS_CONST_CAST(char*,pItem->funcName));
                         STACK_INVEST_ANY_FREE(pItem);
+                        CleanVectorOfItemsInline(a_pDwarfEntry->ppEntries,a_pDwarfEntry->entriesCount);
+                        a_pDwarfEntry->ppEntries = CPPUTILS_NULL;
+                        a_pDwarfEntry->entriesCount = 0;
+                        dwarf_finish(dbg, &err);
                         return 1;
                     }
                     
                     pItem->line = CPPUTILS_STATIC_CAST(int,lineno);
                     CPPUTILS_STATIC_CAST(void,pItem->reserved01);
                     
-                    if(!CInternalDLLHashAddDataIfNotExists(a_pDwarfEntry->addrItemHash,pItem,((char*)(lineaddr))+a_pDwarfEntry->offset,0)){
-                        // we already added this address
-                        STACK_INVEST_ANY_FREE(CPPUTILS_CONST_CAST(char*,pItem->sourceFile));
-                        STACK_INVEST_ANY_FREE(CPPUTILS_CONST_CAST(char*,pItem->funcName));
-                        STACK_INVEST_ANY_FREE(pItem);
+                    pItem->address = (void*)(lineaddr+a_pDwarfEntry->offset);
+                    
+                    if((++nextEntriesCount)>allocatedCount){
+                        allocatedCount += STACK_INV_REALLOC_STEP;
+                        ppEntriesTmp = (struct StackInvestStackItem**)realloc(a_pDwarfEntry->ppEntries,allocatedCount*sizeof(struct StackInvestStackItem*));
+                        if(!ppEntriesTmp){
+                            STACK_INVEST_ANY_FREE(CPPUTILS_CONST_CAST(char*,pItem->sourceFile));
+                            STACK_INVEST_ANY_FREE(CPPUTILS_CONST_CAST(char*,pItem->funcName));
+                            STACK_INVEST_ANY_FREE(pItem);
+                            CleanVectorOfItemsInline(a_pDwarfEntry->ppEntries,a_pDwarfEntry->entriesCount);
+                            a_pDwarfEntry->ppEntries = CPPUTILS_NULL;
+                            a_pDwarfEntry->entriesCount = 0;
+                            dwarf_finish(dbg, &err);
+                            return 1;
+                        }
+                        a_pDwarfEntry->ppEntries = ppEntriesTmp;
                     }
+                    
+                    a_pDwarfEntry->ppEntries[(a_pDwarfEntry->entriesCount)++] = pItem;                    
                 }  //  if(pItem){
         
                 
@@ -334,9 +467,17 @@ static int CollectDwarfInfo(int a_modFd, struct SModuleDwarfEntry* a_pDwarfEntry
 
     if (dwarf_finish(dbg, &err) != DW_DLV_OK) {
         fprintf(stderr, "Failed to finalize libdwarf.\n");
+        STACK_INVEST_ANY_FREE(CPPUTILS_CONST_CAST(char*,pItem->sourceFile));
+        STACK_INVEST_ANY_FREE(CPPUTILS_CONST_CAST(char*,pItem->funcName));
+        STACK_INVEST_ANY_FREE(pItem);
+        CleanVectorOfItemsInline(a_pDwarfEntry->ppEntries,a_pDwarfEntry->entriesCount);
+        a_pDwarfEntry->ppEntries = CPPUTILS_NULL;
+        a_pDwarfEntry->entriesCount = 0;
         return 1;
     }
     
+    qsort(a_pDwarfEntry->ppEntries,a_pDwarfEntry->entriesCount,sizeof(struct StackInvestStackItem*),&CompareItems);
+        
     return 0;
 }
 
