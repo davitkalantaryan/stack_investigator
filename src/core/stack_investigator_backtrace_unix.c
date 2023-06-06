@@ -43,6 +43,14 @@ CPPUTILS_BEGIN_C
 
 #define STACK_INVEST_SYMBOLS_COUNT_MAX  256
 
+static char* StackInvestStrdupInline(const char* a_cpcString){
+    const size_t cunStrLenPlus1 = strlen(a_cpcString)+1;
+    char* pcRetStr = CPPUTILS_STATIC_CAST(char*,STACK_INVEST_ANY_ALLOC(cunStrLenPlus1));
+    if(!pcRetStr){return CPPUTILS_NULL;}
+    memcpy(pcRetStr,a_cpcString,cunStrLenPlus1);
+    return pcRetStr;
+}
+
 
 STACK_INVEST_EXPORT struct StackInvestBacktrace* StackInvestInitBacktraceDataForCurrentStack(int a_goBackInTheStackCalc)
 {
@@ -105,7 +113,19 @@ STACK_INVEST_EXPORT int StackInvestConvertBacktraceToNamesRaw(const struct Stack
                 STACK_INVEST_C_LIB_FREE_NO_CLBK(ppStrings);
                 return 1;
             }
-        }
+
+            if(a_pStack[i].line<0){
+                STACK_INVEST_ANY_FREE(CPPUTILS_CONST_CAST(char*,a_pStack[i].binFile));
+                a_pStack[i].binFile = StackInvestStrdupInline(ppStrings[i]);
+                if(!a_pStack[i].binFile){
+                    for(j=0;j<i;++j){
+                        STACK_INVEST_ANY_FREE(CPPUTILS_CONST_CAST(char*,a_pStack[j].binFile));
+                    }
+                    STACK_INVEST_C_LIB_FREE_NO_CLBK(ppStrings);
+                    return 1;
+                }
+            }  //  if(a_pStack[i].line<0){
+        }  //  for(; i < cunSynbols; ++i){
 
         STACK_INVEST_C_LIB_FREE_NO_CLBK(ppStrings);
         return 0;
