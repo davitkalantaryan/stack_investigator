@@ -89,14 +89,14 @@ STACK_INVEST_EXPORT size_t StackInvestHashOfTheStack(struct StackInvestBacktrace
     return a_stack->hash;
 }
 
-// todo: uncomment below text
-//STACK_INVEST_EXPORT void StackInvestFreeBacktraceData(struct StackInvestBacktrace* a_data)
-//{
-//    if(a_data){
-//        STACK_INVEST_ANY_FREE(a_data->ppBuffer);
-//        STACK_INVEST_ANY_FREE(a_data);
-//    }
-//}
+
+STACK_INVEST_EXPORT void StackInvestFreeBacktraceData(struct StackInvestBacktrace* a_data)
+{
+    if(a_data){
+        STACK_INVEST_ANY_FREE(a_data->ppBuffer);
+        STACK_INVEST_ANY_FREE(a_data);
+    }
+}
 
 
 STACK_INVEST_EXPORT void StackInvestFreeStackItemData(struct StackInvestStackItem* a_pStack)
