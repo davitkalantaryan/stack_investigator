@@ -26,4 +26,4 @@ COMMON_FLAGS	+= -DCRASH_INVEST_VERSION_NUM=$(CRASH_INVEST_VERSION_ENV)
 COMMON_FLAGS	+= -DCRASH_INVEST_VERSION_STR="\"$(CRASH_INVEST_VERSION_ENV)\""
 
 
-include $(cinternalRepoRoot)/prj/common/common_mkfl/sys_common_unix.Makefile
+include $(cinternalRepoRoot)/prj/common/common_mkfl/sys_common.unix.Makefile
