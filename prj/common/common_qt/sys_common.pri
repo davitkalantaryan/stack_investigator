@@ -7,17 +7,5 @@
 
 message ("$${PWD}/sys_common.pri")
 
-isEmpty( stackInvestigatorRepoRoot ) {
-	stackInvestigatorRepoRoot = $${PWD}/../../..
-}
-
-isEmpty( repositoryRoot ) {
-	repositoryRoot = $${stackInvestigatorRepoRoot}
-}
-
-isEmpty( cinternalRepoRoot ) {
-	cinternalRepoRoot=$${stackInvestigatorRepoRoot}/contrib/cinternal
-}
-
-
+include ( "$${PWD}/resolve_common.pri" )
 include ( "$${cinternalRepoRoot}/prj/common/common_qt/sys_common.pri" )
