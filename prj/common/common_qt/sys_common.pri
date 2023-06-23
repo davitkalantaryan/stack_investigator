@@ -1,17 +1,11 @@
-# File sys_common.pri
-# File created : 12 Feb 2017
-# Created by : Davit Kalantaryan (davit.kalantaryan@desy.de)
-# This file can be used to produce Makefile for daqadcreceiver application
-# for PITZ
+#
+# file:			sys_common.pri
+# path:			prj/common/common_qt/sys_common.pri    
+# created on:		2023 Jan 10
+# Created by:		Davit Kalantaryan (davit.kalantaryan@desy.de)
 #
 
-PRJ_PWD			= $${PWD}/../../..
-repositoryRoot		= $${PWD}/../../..
-cpputilsRepoRoot	= $${repositoryRoot}/contrib/cpputils
-systemRepoRoot		= $${repositoryRoot}/contrib/system
-include ( "$${cpputilsRepoRoot}/prj/common/common_qt/sys_common.pri" )
+message ("$${PWD}/sys_common.pri")
 
-CONFIG += c++14
-
-OTHER_FILES +=	\
-	$${repositoryRoot}/prj/common/common_mkfl/sys_common.unix.Makefile
+include ( "$${PWD}/resolve_common.pri" )
+include ( "$${cinternalRepoRoot}/prj/common/common_qt/sys_common.pri" )

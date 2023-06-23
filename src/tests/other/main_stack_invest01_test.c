@@ -7,7 +7,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stack_investigator/investigator.h>
+#ifdef _WIN32
+#define STACK_INVEST_DELIM  '\\'
+#else
+#define STACK_INVEST_DELIM  '/'
+#endif
 
 
 static void PrintStack(struct StackInvestStackItem* pItems, int a_frames);
@@ -41,9 +47,11 @@ static void PrintStack(struct StackInvestStackItem* pFrames, int a_frames)
 {
     int i=0;
 	for (; i < a_frames; ++i) {
+        const char* src = strrchr(pFrames[i].sourceFile,STACK_INVEST_DELIM);
+        if(src){++src;}
+        else{src=pFrames[i].sourceFile;}
 		fprintf(stderr, "\t%p, bin:\"%s\", fnc:\"%s\", src:\"%s\", ln:%d\n",
 			pFrames[i].address, pFrames[i].binFile, pFrames[i].funcName,
-			pFrames[i].sourceFile, pFrames[i].line);
+			src, pFrames[i].line);
 	}
-	StackInvestPrintTrace();
 }

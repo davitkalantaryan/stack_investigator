@@ -1,14 +1,15 @@
 #
-# file:			googletest_getter.pro
-# path:			prj/tests/googletest_mult/googletest_getter.pro
+# file:		googletest_getter.pro
+# path:		prj/tests/googletest_mult/googletest_getter.pro
 # created on:	2021 Mar 27
 # created by:	Davit Kalantaryan
 #
 
-include ( "$${PWD}/../../common/common_qt/sys_common.pri" )
+#DEFINES += DEBUG_APP
 
-# we reevaluate this
-DESTDIR = "$${artifactRoot}/$${SYSTEM_PATH}/test"
+include("$${PWD}/../../common/common_qt/sys_common.pri")
+include("$${PWD}/../../common/common_qt/flags_common.pri")
+DESTDIR = $${artifactRoot}/$${SYSTEM_PATH}/$$CONFIGURATION/test
 
 QT -= gui
 QT -= core
@@ -19,6 +20,8 @@ win32{
 } else {
 	LIBS += "$${PWD}/../../../sys/$$CODENAME/$$CONFIGURATION/lib/libgtest_main$${nameExtension}.a"
 	LIBS += "$${PWD}/../../../sys/$$CODENAME/$$CONFIGURATION/lib/libgtest$${nameExtension}.a"
+	LIBS += -ldwarf
+	LIBS += -ldl
 	LIBS += -pthread
 }
 

@@ -8,8 +8,10 @@
 #ifndef STACK_INVEST_SRC_CORE_STACK_INVESTIGATOR_PRIVATE_INTERNAL_H
 #define STACK_INVEST_SRC_CORE_STACK_INVESTIGATOR_PRIVATE_INTERNAL_H
 
-#include <stack_investigator/internal_header.h>
+#include <stack_investigator/export_symbols.h>
 #include <stddef.h>
+
+CPPUTILS_BEGIN_C
 
 #ifdef STACK_INVEST_ANY_ALLOC
 extern void* STACK_INVEST_ANY_ALLOC(size_t);
@@ -34,11 +36,12 @@ extern void STACK_INVEST_C_LIB_FREE_NO_CLBK(void*);
 #endif
 
 
-
-
 #if !defined(STACK_INVEST_ANY_ALLOC_D) || !defined(STACK_INVEST_FREE_D)  || !defined(STACK_INVEST_C_LIB_FREE_NO_CLBK_D)
 #include <stdlib.h>
 #endif
+
+
+CPPUTILS_END_C
 
 
 #endif  // #ifndef STACK_INVEST_SRC_CORE_STACK_INVESTIGATOR_PRIVATE_INTERNAL_H
