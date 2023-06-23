@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include <stack_investigator/internal_header.h>
+#include <stack_investigator/export_symbols.h>
 #include <stack_investigator/investigator.h>
 #include <stddef.h>
 #include <stdio.h>

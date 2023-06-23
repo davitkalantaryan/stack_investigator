@@ -2,16 +2,13 @@
 # File crash_investigateor.pro
 # File created : 18 Nov 2021
 # Created by : Davit Kalantaryan (davit.kalantaryan@desy.de)
-# This file can be used to produce Makefile
-# 
-
+# This file can be used to produce Makefile for daqadcreceiver application
 
 #DEFINES += DEBUG_APP
 
 include("$${PWD}/../../common/common_qt/sys_common.pri")
 include("$${PWD}/../../common/common_qt/flags_common.pri")
 DESTDIR = $${artifactRoot}/$${SYSTEM_PATH}/$$CONFIGURATION/test
-
 
 QT -= core
 QT -= gui
@@ -26,17 +23,22 @@ win32 {
 
 #DEFINES += CRASH_INVEST_DO_NOT_USE_MAL_FREE
 DEFINES += STACK_INVEST_USING_STATIC_LIB_OR_OBJECTS
-
-SOURCES += "$${PWD}/../../../src/tests/other/main_stack_invest02_test.cpp"
+DEFINES += STACK_INVEST_USING_STATIC_LIB_OR_OBJECTS_CPP
 
 INCLUDEPATH += $${PWD}/../../../include
 INCLUDEPATH += $${PWD}/../../../contrib/cpputils/include
 
+
+SOURCES += "$${PWD}/../../../src/tests/other/main_dwarf_test02.cpp"
+
 SOURCES += $$files($${PWD}/../../../src/core/*.c,false)
 SOURCES += "$${cinternalRepoRoot}/src/core/cinternal_core_hash_dllhash.c"
 
+SOURCES += "$${PWD}/../../../src/core/cpp/stack_investigator_cinvestigator.cpp"
+
+
 HEADERS += \
-	"$${PWD}/../../../src/core/stack_investigator_private_internal.h"	\
+	$$files($${PWD}/../../../src/core/*.h,true)				\
 	$$files($${PWD}/../../../include/*.hpp,true)				\
 	$$files($${PWD}/../../../include/*.h,true)
 

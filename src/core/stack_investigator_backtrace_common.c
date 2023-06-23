@@ -13,6 +13,30 @@
 
 CPPUTILS_BEGIN_C
 
+#ifdef _WIN32
+CPPUTILS_DLL_PRIVATE int StackInvestDetailsFromFrameAddress_Windows(struct StackInvestStackItem* a_pStack);  //  ret 0 is ok
+#else
+#include "stack_investigator_private_addr_to_details_unix.h"
+#endif
+
+
+STACK_INVEST_EXPORT int StackInvestDetailsFromFrameAddress(const void* a_pFrameAddress, struct StackInvestStackItem* a_pStack)
+{
+    CPPUTILS_STATIC_CAST(void,a_pStack->reserved01);
+    a_pStack->address = a_pFrameAddress;
+    
+#ifdef _WIN32
+    return StackInvestDetailsFromFrameAddress_Windows(a_pStack);
+#elif defined(STACK_INVEST_LIBDWARF_USED)
+    return StackInvestDetailsFromFrameAddress_Dwarf(a_pStack);
+#elif defined(STACK_INVEST_ADDRTOLINE_USED)
+    return StackInvestDetailsFromFrameAddress_addrtoline(a_pStack);
+#else
+    return StackInvestDetailsFromFrameAddress_empty(a_pStack);
+#endif
+    
+}
+
 
 STACK_INVEST_EXPORT struct StackInvestBacktrace* StackInvestCloneBackTrace(const struct StackInvestBacktrace* a_btr)
 {

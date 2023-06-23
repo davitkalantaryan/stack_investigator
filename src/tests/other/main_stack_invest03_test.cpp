@@ -41,5 +41,4 @@ static void PrintStack(void)
 			pFrames[i].address, pFrames[i].binFile, pFrames[i].funcName,
 			pFrames[i].sourceFile, pFrames[i].line);
 	}
-	StackInvestPrintTrace();
 }
