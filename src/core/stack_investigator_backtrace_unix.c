@@ -142,11 +142,11 @@ CPPUTILS_CODE_INITIALIZER(stack_investigator_backtrace_unix_initialize){
 
     // first call of backtrace calls pthread_once, that sometimes makes deadlock
     // that's why let's call backtrace here once
-    void* ppBuffer[256];
-    int nInitialDeepness = backtrace(ppBuffer,255);
-    if(nInitialDeepness<1){
-        exit(1);
-    }
+    //void* ppBuffer[256];
+    //int nInitialDeepness = backtrace(ppBuffer,255);
+    //if(nInitialDeepness<1){
+    //    exit(1);
+    //}
     atexit(&stack_investigator_backtrace_unix_cleanup);
 
 }
