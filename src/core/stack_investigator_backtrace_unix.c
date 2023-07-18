@@ -21,6 +21,7 @@
 #include <stack_investigator/investigator.h>
 #include "stack_investigator_private_internal.h"
 #include "stack_investigator_private_addr_to_details_unix.h"
+#include <cinternal/logger.h>
 #include <string.h>
 #include <alloca.h>
 #include <stdio.h>
@@ -76,6 +77,51 @@ STACK_INVEST_EXPORT struct StackInvestBacktrace* StackInvestInitBacktraceDataFor
     memcpy(pReturn->ppBuffer,&(ppBuffer[a_goBackInTheStackCalc]), CPPUTILS_STATIC_CAST(size_t,pReturn->stackDeepness)*sizeof(void*));
 
     return pReturn;
+}
+
+
+struct StackInvestOptimalPrint{
+    size_t count;
+    char** ppStrings;
+};
+
+
+STACK_INVEST_EXPORT const struct StackInvestOptimalPrint*  StackInvestOptimalPrintCreate(const struct StackInvestBacktrace* CPPUTILS_ARG_NN a_data, size_t a_offset, size_t a_count)
+{
+    struct StackInvestOptimalPrint* const pOptPrintRet = STACK_INVEST_ANY_ALLOC(sizeof(struct StackInvestOptimalPrint));
+    if(!pOptPrintRet){
+        return CPPUTILS_NULL;
+    }
+
+    pOptPrintRet->ppStrings = backtrace_symbols(a_data->ppBuffer + a_offset,CPPUTILS_STATIC_CAST(int,a_count));
+    if(!(pOptPrintRet->ppStrings)){
+        STACK_INVEST_ANY_FREE(pOptPrintRet);
+        return CPPUTILS_NULL;
+    }
+
+    pOptPrintRet->count = a_count;
+
+    return pOptPrintRet;
+}
+
+
+STACK_INVEST_EXPORT void StackInvestOptimalPrintPrint(const struct StackInvestOptimalPrint* CPPUTILS_ARG_NN a_opPrintData)
+{
+    size_t i;
+    CinternalMakeLogNoExtraData(CinternalLogTypeInfo,false,"---");
+    CinternalLogPrintDateAndTime(CinternalLogTypeInfo,false);
+    CinternalMakeLogNoExtraData(CinternalLogTypeInfo,false,"\n");
+    for(i=0;i<(a_opPrintData->count);++i){
+        CinternalMakeLogNoExtraData(CinternalLogTypeInfo,false,"    %s\n",(a_opPrintData->ppStrings)[i]);
+    }
+    CinternalMakeLogNoExtraData(CinternalLogTypeInfo,true,"\n");
+}
+
+
+STACK_INVEST_EXPORT void StackInvestOptimalPrintClean(const struct StackInvestOptimalPrint* CPPUTILS_ARG_NN a_opPrintData)
+{
+    STACK_INVEST_C_LIB_FREE_NO_CLBK(a_opPrintData->ppStrings);
+    STACK_INVEST_ANY_FREE( CPPUTILS_CONST_CAST(struct StackInvestOptimalPrint*,a_opPrintData));
 }
 
 
