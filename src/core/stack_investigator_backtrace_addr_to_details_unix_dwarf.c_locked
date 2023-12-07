@@ -455,7 +455,7 @@ static int CollectDwarfInfo(int a_modFd, struct SModuleDwarfEntry* a_pDwarfEntry
                     
                     if((++nextEntriesCount)>allocatedCount){
                         allocatedCount += STACK_INV_REALLOC_STEP;
-                        ppEntriesTmp = (struct StackInvestStackItem**)STACK_INVEST_ANY_REALLOC(a_pDwarfEntry->ppEntries,allocatedCount*sizeof(struct StackInvestStackItem*));
+                        ppEntriesTmp = (struct StackInvestStackItem**)realloc(a_pDwarfEntry->ppEntries,allocatedCount*sizeof(struct StackInvestStackItem*));
                         if(!ppEntriesTmp){
                             STACK_INVEST_ANY_FREE(CPPUTILS_CONST_CAST(char*,pItem->sourceFile));
                             STACK_INVEST_ANY_FREE(CPPUTILS_CONST_CAST(char*,pItem->funcName));

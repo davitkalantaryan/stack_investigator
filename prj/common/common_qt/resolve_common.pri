@@ -1,4 +1,5 @@
 #
+# repo:			stack_investigator
 # file:			resolve_common.pri
 # path:			prj/common/common_qt/resolve_common.pri
 # created on:		2023 Jan 21
@@ -6,6 +7,7 @@
 #
 
 message ("$${PWD}/resolve_common.pri")
+stackInvestigatorResolveCommonIncluded = 1
 
 isEmpty( stackInvestigatorRepoRoot ) {
         stackInvestigatorRepoRoot = $$(stackInvestigatorRepoRoot)

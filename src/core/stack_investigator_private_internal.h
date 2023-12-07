@@ -21,6 +21,14 @@ extern void* STACK_INVEST_ANY_ALLOC(size_t);
 #endif
 
 
+#ifdef STACK_INVEST_ANY_REALLOC
+extern void* STACK_INVEST_ANY_REALLOC(void*,size_t);
+#define STACK_INVEST_ANY_REALLOC_D
+#else
+#define STACK_INVEST_ANY_REALLOC remalloc
+#endif
+
+
 #ifdef STACK_INVEST_ANY_FREE
 extern void STACK_INVEST_ANY_FREE(void*);
 #define STACK_INVEST_ANY_FREE_D
