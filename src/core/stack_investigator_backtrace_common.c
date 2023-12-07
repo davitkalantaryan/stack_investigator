@@ -14,7 +14,7 @@
 CPPUTILS_BEGIN_C
 
 #ifdef _WIN32
-CPPUTILS_DLL_PRIVATE int StackInvestDetailsFromFrameAddress_Windows(struct StackInvestStackItem* a_pStack);  //  ret 0 is ok
+CPPUTILS_DLL_PRIVATE int StackInvestDetailsFromFrameAddress_Windows(struct StackInvestStackItem* CPPUTILS_ARG_NN a_pStack);  //  ret 0 is ok
 #else
 #include "stack_investigator_private_addr_to_details_unix.h"
 #endif

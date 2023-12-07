@@ -9,6 +9,7 @@
 
 #include <stack_investigator/investigator.h>
 #include "stack_investigator_private_internal.h"
+#include <cinternal/logger.h>
 #include <malloc.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -62,7 +63,7 @@ STACK_INVEST_EXPORT struct StackInvestBacktrace* StackInvestInitBacktraceDataFor
 
 static void StackInvestGetSymbolInfo(struct StackInvestStackItem* a_pItem);
 
-STACK_INVEST_EXPORT void StackInvestConvertBacktraceToNamesRaw(const struct StackInvestBacktrace* a_data, size_t a_offset, struct StackInvestStackItem* a_pStack, size_t a_bufferSize)
+STACK_INVEST_EXPORT int StackInvestConvertBacktraceToNamesRaw(const struct StackInvestBacktrace* CPPUTILS_ARG_NN a_data, size_t a_offset, struct StackInvestStackItem* a_pStack, size_t a_bufferSize)
 {
     if(a_data){
         size_t i = 0;
@@ -76,7 +77,83 @@ STACK_INVEST_EXPORT void StackInvestConvertBacktraceToNamesRaw(const struct Stac
             StackInvestGetSymbolInfo(&a_pStack[i]);
         }
         
-    }  //  if(a_data){    
+    }  //  if(a_data){
+
+	return 0;
+}
+
+
+CPPUTILS_DLL_PRIVATE int StackInvestDetailsFromFrameAddress_Windows(struct StackInvestStackItem* CPPUTILS_ARG_NN a_pStack)
+{
+#if 0
+	struct StackInvestBacktrace {
+		void** ppBuffer;
+		size_t  hash;
+		int     stackDeepness;
+		int     hashIsNotValid : 2;
+		int     reserved01 : 30;
+	};
+#endif
+	struct StackInvestBacktrace aData;
+	void* vpBuffer[2] = { CPPUTILS_CONST_CAST(void*,a_pStack->address),CPPUTILS_NULL };
+	aData.ppBuffer = vpBuffer;
+	aData.hash = 0;
+	aData.hashIsNotValid = 1;
+	CPPUTILS_STATIC_CAST(void, aData.reserved01);
+	return StackInvestConvertBacktraceToNamesRaw(&aData, 0, a_pStack, 1);
+}
+
+
+struct StackInvestOptimalPrint {
+	size_t count;
+	struct StackInvestStackItem* m_item_p;
+};
+
+
+STACK_INVEST_EXPORT const struct StackInvestOptimalPrint* StackInvestOptimalPrintCreate(const struct StackInvestBacktrace* a_data, size_t a_offset, size_t a_count)
+{
+	//struct StackInvestOptimalPrint* pRet = (struct StackInvestOptimalPrint*)
+	if (a_offset < a_count) {
+		const size_t itemsCount = a_count - a_offset;
+		struct StackInvestOptimalPrint* pRet = CPPUTILS_STATIC_CAST(struct StackInvestOptimalPrint*,STACK_INVEST_ANY_ALLOC(sizeof(struct StackInvestOptimalPrint)));
+		if (!pRet) { return CPPUTILS_NULL; }
+		pRet->m_item_p = CPPUTILS_STATIC_CAST(struct StackInvestStackItem*,STACK_INVEST_ANY_ALLOC(sizeof(struct StackInvestStackItem)));
+		if (!(pRet->m_item_p)) {
+			STACK_INVEST_ANY_FREE(pRet);
+			return CPPUTILS_NULL;
+		}
+		pRet->count = itemsCount;
+		if (StackInvestConvertBacktraceToNamesRaw(a_data, a_offset, pRet->m_item_p, itemsCount)) {
+			STACK_INVEST_ANY_FREE(pRet->m_item_p);
+			STACK_INVEST_ANY_FREE(pRet);
+			return CPPUTILS_NULL;
+		}
+		return pRet;
+	}
+
+	return CPPUTILS_NULL;
+	
+}
+
+STACK_INVEST_EXPORT void StackInvestOptimalPrintPrint(const struct StackInvestOptimalPrint* CPPUTILS_ARG_NN a_opPrintData)
+{
+	size_t i;
+	CinternalMakeLogNoExtraData(CinternalLogTypeInfo, false, "---");
+	CinternalLogPrintDateAndTime(CinternalLogTypeInfo, false);
+	CinternalMakeLogNoExtraData(CinternalLogTypeInfo, false, "\n");
+	for (i = 0; i < (a_opPrintData->count); ++i) {
+		CinternalMakeLogNoExtraData(CinternalLogTypeInfo, false, 
+			"    fl: \"%s\", ln: %d, fn: %s\n", 
+			(a_opPrintData->m_item_p)[i].sourceFile, (a_opPrintData->m_item_p)[i].line,(a_opPrintData->m_item_p)[i].funcName);
+	}
+	CinternalMakeLogNoExtraData(CinternalLogTypeInfo, true, "\n");
+}
+
+
+STACK_INVEST_EXPORT void StackInvestOptimalPrintClean(const struct StackInvestOptimalPrint* CPPUTILS_ARG_NN a_opPrintData)
+{
+	STACK_INVEST_ANY_FREE(a_opPrintData->m_item_p);
+	STACK_INVEST_ANY_FREE(a_opPrintData);
 }
 
 
