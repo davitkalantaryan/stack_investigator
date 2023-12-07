@@ -13,11 +13,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <cpputils/disable_compiler_warnings.h>
+#include <cinternal/disable_compiler_warnings.h>
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 #include <Windows.h>
 #include <DbgHelp.h>
+#include <cinternal/undisable_compiler_warnings.h>
 
 #ifdef _MSC_VER
 #pragma comment (lib, "Dbghelp.lib")
