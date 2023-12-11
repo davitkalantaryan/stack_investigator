@@ -10,6 +10,7 @@
 #include <stack_investigator/investigator.h>
 #include "stack_investigator_private_internal.h"
 #include <cinternal/logger.h>
+#include <cinternal/lw_mutex_recursive.h>
 #include <malloc.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -29,6 +30,10 @@
 // see: https://docs.microsoft.com/en-us/previous-versions/windows/desktop/legacy/bb204633(v=vs.85)?redirectedfrom=MSDN
 
 #define STACK_INVEST_SYMBOLS_COUNT_MAX  62 // Windows Server 2003 and Windows XP: The sum of the FramesToSkip and FramesToCapture parameters must be less than 63
+
+
+static cinternal_lw_recursive_mutex_t  s_mutex_for_dbg_functions;
+
 
 STACK_INVEST_EXPORT struct StackInvestBacktrace* StackInvestInitBacktraceDataForCurrentStack(int a_goBackInTheStackCalc)
 {
@@ -153,7 +158,7 @@ STACK_INVEST_EXPORT void StackInvestOptimalPrintPrint(const struct StackInvestOp
 STACK_INVEST_EXPORT void StackInvestOptimalPrintClean(const struct StackInvestOptimalPrint* CPPUTILS_ARG_NN a_opPrintData)
 {
 	STACK_INVEST_ANY_FREE(a_opPrintData->m_item_p);
-	STACK_INVEST_ANY_FREE(a_opPrintData);
+	STACK_INVEST_ANY_FREE(CPPUTILS_CONST_CAST(struct StackInvestOptimalPrint* ,a_opPrintData));
 }
 
 
@@ -162,22 +167,33 @@ static HANDLE s_currentProcess = CPPUTILS_NULL;
 static void StackInvestCleanupRoutine(void)
 {
 	if (s_currentProcess) {
+		cinternal_lw_recursive_mutex_lock(&s_mutex_for_dbg_functions);
 		SymCleanup(s_currentProcess);
+		cinternal_lw_recursive_mutex_unlock(&s_mutex_for_dbg_functions);
 		s_currentProcess = CPPUTILS_NULL;
 	}
+
+	cinternal_lw_recursive_mutex_destroy(&s_mutex_for_dbg_functions);
 }
 
 CPPUTILS_C_CODE_INITIALIZER(StackInvestInitializationRoutine)
 {
 	if (s_currentProcess) { return; }
+	if (cinternal_lw_recursive_mutex_create(&s_mutex_for_dbg_functions)) {
+		CInternalLogError("Unable create mutex\n");
+		exit(1);
+	}
 	s_currentProcess = GetCurrentProcess();
+	cinternal_lw_recursive_mutex_lock(&s_mutex_for_dbg_functions);
 	if (!SymInitialize(s_currentProcess, CPPUTILS_NULL, TRUE)) {
 		// SymInitialize failed
+		cinternal_lw_recursive_mutex_unlock(&s_mutex_for_dbg_functions);
 		s_currentProcess = CPPUTILS_NULL;
 		DWORD error = GetLastError();
-		fprintf(stderr, "SymInitialize returned error : %d\n", CPPUTILS_STATIC_CAST(int,error));
-		return;
+		CInternalLogError("SymInitialize returned error : %d\n", CPPUTILS_STATIC_CAST(int,error));
+		exit(1);
 	}
+	cinternal_lw_recursive_mutex_unlock(&s_mutex_for_dbg_functions);
 	atexit(StackInvestCleanupRoutine);
 }
 
@@ -194,6 +210,7 @@ static void StackInvestGetSymbolInfo(struct StackInvestStackItem* a_pStackItem)
 	// https://docs.microsoft.com/en-us/windows/win32/debug/retrieving-symbol-information-by-address
 	const DWORD_ci  dwAddress = CPPUTILS_STATIC_CAST(DWORD_ci, CPPUTILS_REINTERPRET_CAST(size_t,a_pStackItem->address));
 
+	cinternal_lw_recursive_mutex_lock(&s_mutex_for_dbg_functions);
 	
 	{
 		DWORD64  dwDisplacement = 0;
@@ -250,6 +267,8 @@ static void StackInvestGetSymbolInfo(struct StackInvestStackItem* a_pStackItem)
 			a_pStackItem->binFile = CPPUTILS_NULL;
 		}
 	}
+
+	cinternal_lw_recursive_mutex_unlock(&s_mutex_for_dbg_functions);
 
 
 }
