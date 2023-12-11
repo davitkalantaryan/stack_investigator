@@ -122,7 +122,7 @@ STACK_INVEST_EXPORT const struct StackInvestOptimalPrint* StackInvestOptimalPrin
 		const size_t itemsCount = a_count - a_offset;
 		struct StackInvestOptimalPrint* pRet = CPPUTILS_STATIC_CAST(struct StackInvestOptimalPrint*,STACK_INVEST_ANY_ALLOC(sizeof(struct StackInvestOptimalPrint)));
 		if (!pRet) { return CPPUTILS_NULL; }
-		pRet->m_item_p = CPPUTILS_STATIC_CAST(struct StackInvestStackItem*,STACK_INVEST_ANY_ALLOC(sizeof(struct StackInvestStackItem)));
+		pRet->m_item_p = CPPUTILS_STATIC_CAST(struct StackInvestStackItem*,STACK_INVEST_ANY_ALLOC(sizeof(struct StackInvestStackItem)* itemsCount));
 		if (!(pRet->m_item_p)) {
 			STACK_INVEST_ANY_FREE(pRet);
 			return CPPUTILS_NULL;
