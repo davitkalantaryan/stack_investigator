@@ -8,8 +8,8 @@
 
 #DEFINES += DEBUG_APP
 
-include("$${PWD}/../../common/common_qt/sys_common.pri")
-include("$${PWD}/../../common/common_qt/flags_common.pri")
+message("!!! $${_PRO_FILE_}")
+include("$${PWD}/../../common/common_qt/flagsandsys_common.pri")
 DESTDIR = $${artifactRoot}/$${SYSTEM_PATH}/$$CONFIGURATION/test
 
 QT -= core
@@ -18,7 +18,7 @@ CONFIG -= qt
 
 win32 {
 } else {
-    LIBS += -ldwarf
+    #LIBS += -ldwarf
     LIBS += -ldl
     LIBS += -pthread
 }
@@ -26,6 +26,7 @@ win32 {
 #DEFINES += CRASH_INVEST_DO_NOT_USE_MAL_FREE
 DEFINES += STACK_INVEST_USING_STATIC_LIB_OR_OBJECTS
 DEFINES += STACK_INVEST_USING_STATIC_LIB_OR_OBJECTS_CPP
+DEFINES += STACK_INVEST_NOT_USE_LIBDWARF
 
 INCLUDEPATH += $${PWD}/../../../include
 INCLUDEPATH += $${PWD}/../../../contrib/cpputils/include
@@ -34,7 +35,7 @@ INCLUDEPATH += $${PWD}/../../../contrib/cpputils/include
 SOURCES += "$${PWD}/../../../src/tests/other/main_stack_invest05_test.cpp"
 SOURCES += $$files($${PWD}/../../../src/core/*.c,false)
 SOURCES += "$${PWD}/../../../src/core/cpp/stack_investigator_cinvestigator.cpp"
-SOURCES += "$${cinternalRepoRoot}/src/core/cinternal_core_hash_dllhash.c"
+SOURCES += "$${cinternalRepoRoot}/src/core/cinternal_core_logger.c"
 
 HEADERS += \
 	"$${PWD}/../../../src/core/stack_investigator_private_internal.h"	\

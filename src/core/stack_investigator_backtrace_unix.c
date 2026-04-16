@@ -22,6 +22,7 @@
 #include "stack_investigator_private_internal.h"
 #include "stack_investigator_private_addr_to_details_unix.h"
 #include <cinternal/logger.h>
+#include <cinternal/disable_compiler_warnings.h>
 #include <string.h>
 #include <alloca.h>
 #include <stdio.h>
@@ -30,6 +31,7 @@
 #ifdef CRASH_INVESTEXECINFO_DEFINED
 #include <execinfo.h>
 #endif
+#include <cinternal/undisable_compiler_warnings.h>
 
 
 CPPUTILS_BEGIN_C
@@ -108,13 +110,16 @@ STACK_INVEST_EXPORT const struct StackInvestOptimalPrint*  StackInvestOptimalPri
 STACK_INVEST_EXPORT void StackInvestOptimalPrintPrint(const struct StackInvestOptimalPrint* CPPUTILS_ARG_NN a_opPrintData)
 {
     size_t i;
-    CinternalMakeLogNoExtraData(CinternalLogTypeInfo,false,"---");
-    CinternalLogPrintDateAndTime(CinternalLogTypeInfo,false);
-    CinternalMakeLogNoExtraData(CinternalLogTypeInfo,false,"\n");
+    CinternalLoggerMakeLog(0,"info","fl",0,"fn",CinternalLogTypeMainText,CinternalLogCategoryInfo,"---");
+    //CinternalLogPrintDateAndTime(CinternalLogTypeInfo,false);
+    CinternalLoggerMakeLog(0,"info","fl",0,"fn",CinternalLogTypeTime,CinternalLogCategoryInfo,"txt");
+    //CinternalMakeLogNoExtraData(CinternalLogTypeInfo,false,"\n");
+    CinternalLoggerMakeLog(0,"info","fl",0,"fn",CinternalLogTypeMainText,CinternalLogCategoryInfo,"\n");
     for(i=0;i<(a_opPrintData->count);++i){
-        CinternalMakeLogNoExtraData(CinternalLogTypeInfo,false,"    %s\n",(a_opPrintData->ppStrings)[i]);
+        //CinternalMakeLogNoExtraData(CinternalLogTypeInfo,false,"    %s\n",(a_opPrintData->ppStrings)[i]);
+        CinternalLoggerMakeLog(0,"info","fl",0,"fn",CinternalLogTypeMainText,CinternalLogCategoryInfo,"    %s\n",(a_opPrintData->ppStrings)[i]);
     }
-    CinternalMakeLogNoExtraData(CinternalLogTypeInfo,true,"\n");
+    CinternalLoggerMakeLog(0,"info","fl",0,"fn",CinternalLogTypeMainText,CinternalLogCategoryInfo,"\n");
 }
 
 

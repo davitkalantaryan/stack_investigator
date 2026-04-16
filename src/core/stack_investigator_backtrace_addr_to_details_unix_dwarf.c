@@ -10,6 +10,9 @@
 #pragma warning(disable:4206)
 #endif
 
+
+#if 0
+
 #include <stack_investigator/export_symbols.h>
 
 #if !defined(_WIN32) || defined(__INTELLISENSE__)
@@ -18,7 +21,7 @@
 
 #include "stack_investigator_private_internal.h"
 #include "stack_investigator_private_mutex.h"
-#include <cinternal/hash/dllhash.h>
+#include <cutils/hash/dllhash.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
@@ -540,3 +543,7 @@ CPPUTILS_END_C
 
 #endif  //  #ifdef STACK_INVEST_LIBDWARF_USED
 #endif  //  #if !defined(_WIN32) || defined(__INTELLISENSE__)
+
+
+#endif
+
